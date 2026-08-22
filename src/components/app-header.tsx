@@ -75,6 +75,12 @@ export function AppHeader() {
         </div>
 
         <div className="flex items-center gap-2">
+            <Button variant="outline" className="hidden lg:flex border-amber-500/30 bg-amber-500/5 text-[#d47a24] hover:bg-amber-500/10 hover:text-[#b4651a] font-bold text-xs gap-1.5 h-9 px-3" asChild>
+                <Link href={user ? "/partner/dashboard" : "/login"}>
+                    <Briefcase className="h-4 w-4" />
+                    Painel Corporativo
+                </Link>
+            </Button>
            <Button variant="ghost" asChild>
                 <Link href="/donations">
                     <HeartHandshake className="mr-2 h-5 w-5" />
@@ -150,7 +156,7 @@ export function AppHeader() {
                 <Link href="/login">Entrar</Link>
               </Button>
               <Button size="sm" className="bg-[#F6780A] hover:bg-[#D45500] text-white" asChild>
-                <Link href="/signup">Cadastrar</Link>
+                <Link href="/cadastro">Cadastrar</Link>
               </Button>
             </div>
           )}
@@ -181,6 +187,15 @@ export function AppHeader() {
                     </Link>
                   )
                 })}
+                <div className="border-t border-border pt-4">
+                  <Link
+                    href={user ? "/partner/dashboard" : "/login"}
+                    className="flex items-center gap-3 rounded-lg px-3 py-2 text-[#d47a24] font-semibold transition-all hover:text-[#b4651a] hover:bg-amber-500/5 text-base"
+                  >
+                    <Briefcase className="h-5 w-5" />
+                    Painel Corporativo
+                  </Link>
+                </div>
               </nav>
               {!user && (
                 <div className="flex flex-col gap-2 mt-auto pb-4">
@@ -188,7 +203,7 @@ export function AppHeader() {
                     <Link href="/login">Entrar</Link>
                   </Button>
                   <Button className="w-full bg-[#F6780A] hover:bg-[#D45500] text-white" asChild>
-                    <Link href="/signup">Cadastrar</Link>
+                    <Link href="/cadastro">Cadastrar</Link>
                   </Button>
                 </div>
               )}

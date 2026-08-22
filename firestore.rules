@@ -131,7 +131,8 @@ service cloud.firestore {
       match /orders/{orderId} {
           allow read: if isOwner(userId);
           allow create: if isOwner(userId) && hasCorrectUser(userId);
-          allow update, delete: if false; // Orders are immutable.
+          allow update: if isOwner(userId) || (isSignedIn() && (resource.data.items.exists(item, item.vendorId == request.auth.uid) || isAdmin()));
+          allow delete: if false;
       }
       
       match /subscriptions/{subscriptionId} {
@@ -193,7 +194,8 @@ service cloud.firestore {
      * @description Allow a vendor to read an order if it contains an item they sell.
      */
     match /{path=**}/orders/{orderId} {
-        allow get: if isSignedIn() && resource.data.items.exists(item, item.vendorId == request.auth.uid);
+        allow get, list: if isSignedIn() && (isAdmin() || resource.data.items.exists(item, item.vendorId == request.auth.uid));
+        allow update: if isSignedIn() && (isAdmin() || resource.data.items.exists(item, item.vendorId == request.auth.uid));
     }
     
     // -------------------------------------------------------------------------

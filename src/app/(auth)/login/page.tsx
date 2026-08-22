@@ -139,9 +139,18 @@ export default function LoginPage() {
 
               <div className="mt-6 flex justify-center gap-1.5 text-[14px]">
                 <span className="text-gray-500">Não tem uma conta?</span>
-                <Link href="/signup" className="font-semibold text-[#3483fa] hover:underline">
+                <Link href="/cadastro" className="font-semibold text-[#3483fa] hover:underline">
                   Criar conta
                 </Link>
+              </div>
+
+              <div className="mt-4 flex flex-col items-center gap-1 text-[13px] border-t border-gray-100 pt-3">
+                <p className="text-gray-500">
+                  Quer ser um parceiro?{' '}
+                  <Link href="/partner-signup" className="font-semibold text-[#d47a24] hover:underline">
+                    Registe o seu negócio
+                  </Link>
+                </p>
               </div>
             </div>
           </form>

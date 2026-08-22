@@ -203,11 +203,24 @@ export default function SignupPage() {
             </form>
           </Form>
         </CardContent>
-        <CardFooter className="flex justify-center">
+        <CardFooter className="flex flex-col items-center gap-3">
           <p className="text-sm text-muted-foreground">
             Já tem uma conta?{' '}
             <Link href="/login" className="text-primary hover:underline font-medium">
               Fazer login
+            </Link>
+          </p>
+          <div className="border-t border-border w-full my-1" />
+          <p className="text-xs text-muted-foreground">
+            Já tem uma conta de parceiro?{' '}
+            <Link href="/login" className="text-[#d47a24] hover:underline font-semibold">
+              Entrar como parceiro
+            </Link>
+          </p>
+          <p className="text-xs text-muted-foreground">
+            Quer ser um parceiro?{' '}
+            <Link href="/partner-signup" className="text-[#d47a24] hover:underline font-semibold">
+              Registar como parceiro
             </Link>
           </p>
         </CardFooter>

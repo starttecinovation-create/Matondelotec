@@ -49,13 +49,18 @@ export default function LandingPage() {
 
        <div className="mt-12 w-full max-w-xs sm:max-w-md animate-in slide-in-from-bottom-6 duration-1000">
          <div className="bg-[#0F3460] text-white p-6 rounded-2xl border border-white/10 shadow-xl flex flex-col items-center text-center gap-4">
-           <h3 className="text-xl font-bold font-sans tracking-wide">PAINEL COORPORATIVO</h3>
+           <h3 className="text-xl font-bold font-sans tracking-wide">PAINEL CORPORATIVO</h3>
            <p className="text-sm text-white/80 leading-relaxed font-medium">
              Cadastre a sua organização, sua marca ou Instituição e fique mais próximo do seu público alvo.
            </p>
-           <Button asChild size="lg" className="bg-white text-[#0F3460] hover:bg-gray-100 font-extrabold border-none shadow-md w-full mt-2">
-             <Link href="/partner-signup">Cadastrar Parceiro</Link>
-           </Button>
+           <div className="flex flex-col gap-2.5 w-full mt-2">
+             <Button asChild size="lg" className="bg-white text-[#0F3460] hover:bg-gray-100 font-extrabold border-none shadow-md w-full">
+               <Link href="/partner-signup">Cadastrar Parceiro</Link>
+             </Button>
+             <Button asChild size="lg" variant="outline" className="bg-transparent text-white border-2 border-white hover:bg-white/15 font-bold w-full">
+               <Link href="/login">Entrar no Painel</Link>
+             </Button>
+           </div>
          </div>
        </div>
 

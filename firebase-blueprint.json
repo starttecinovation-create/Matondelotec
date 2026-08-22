@@ -1,0 +1,278 @@
+{
+  "entities": {
+    "Announcement": {
+      "title": "Announcement",
+      "type": "object",
+      "description": "Represents a site-wide announcement banner.",
+      "properties": {
+        "id": { "type": "string", "description": "Unique ID for the announcement." },
+        "message": { "type": "string", "description": "The message to display in the banner." },
+        "link": { "type": "string", "description": "An optional URL for the banner to link to." },
+        "isActive": { "type": "boolean", "description": "Controls if the announcement is visible." },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Creation timestamp." }
+      },
+      "required": ["id", "message", "isActive", "createdAt"]
+    },
+    "CharityProject": {
+      "title": "Charity Project",
+      "type": "object",
+      "description": "Represents a social responsibility project for donations.",
+      "properties": {
+        "id": { "type": "string", "description": "Unique ID for the project." },
+        "title": { "type": "string", "description": "The title of the project." },
+        "organization": { "type": "string", "description": "The organization responsible for the project." },
+        "description": { "type": "string", "description": "A detailed description of the project." },
+        "imageUrl": { "type": "string", "description": "URL for the project's main image." },
+        "goal": { "type": "number", "description": "The fundraising goal in AOA." },
+        "raised": { "type": "number", "description": "The amount raised so far in AOA." }
+      },
+      "required": ["id", "title", "organization", "description", "imageUrl", "goal", "raised"]
+    },
+    "Subscription": {
+      "title": "Subscription",
+      "type": "object",
+      "description": "Represents a vendor's subscription to the platform.",
+      "properties": {
+        "id": { "type": "string" },
+        "vendorId": { "type": "string" },
+        "startDate": { "type": "string", "format": "date-time" },
+        "endDate": { "type": "string", "format": "date-time" },
+        "amountPaid": { "type": "number" },
+        "status": { "type": "string", "enum": ["active", "expired", "cancelled"] },
+        "lastReminderSent": { "type": "string", "format": "date-time", "description": "Timestamp of the last payment reminder sent." }
+      },
+      "required": ["id", "vendorId", "startDate", "endDate", "amountPaid", "status"]
+    },
+    "UserProfile": {
+      "title": "UserProfile",
+      "type": "object",
+      "description": "Represents a user profile for all roles: regular users, vendors, and drivers.",
+      "properties": {
+        "id": { "type": "string", "description": "Matches Firebase Auth UID." },
+        "email": { "type": "string", "format": "email" },
+        "displayName": { "type": "string" },
+        "role": { "type": "string", "enum": ["user", "vendor", "driver", "admin"] },
+        "driverType": { "type": "string", "enum": ["taxi", "moto_taxi", "tow_truck", "goods_vehicle"] },
+        "category": { "type": "string", "description": "Business category for a vendor." },
+        "balance": { "type": "number", "description": "Virtual balance for vendor subscriptions or driver earnings." },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "verificationStatus": { "type": "string", "enum": ["pending", "approved", "rejected"] },
+        "referralCode": { "type": "string" },
+        "referredBy": { "type": "string" },
+        "referralEarnings": { "type": "number" },
+        "location": {
+            "type": "object",
+            "properties": {
+                "country": { "type": "string" },
+                "province": { "type": "string" },
+                "city": { "type": "string" },
+                "district": { "type": "string" },
+                "commune": { "type": "string" }
+            }
+        }
+      },
+      "required": ["id", "email", "displayName", "role", "balance", "createdAt"]
+    },
+    "Service": {
+      "title": "Service",
+      "type": "object",
+      "description": "Represents a service offered by a vendor.",
+      "properties": {
+        "id": { "type": "string" },
+        "vendorId": { "type": "string" },
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "price": { "type": "number" },
+        "category": { "type": "string" },
+        "imageUrls": { "type": "array", "items": { "type": "string" } },
+        "location": { "type": "object", "properties": { "latitude": { "type": "number" }, "longitude": { "type": "number" } } }
+      },
+      "required": ["id", "vendorId", "name", "price", "category"]
+    },
+    "Product": {
+        "title": "Product",
+        "type": "object",
+        "description": "Represents a specific product offered as part of a Service (e.g., a T-shirt from a Print Shop).",
+        "properties": {
+            "id": { "type": "string" },
+            "name": { "type": "string" },
+            "description": { "type": "string" },
+            "price": { "type": "number" },
+            "imageUrl": { "type": "string" },
+            "vendorId": { "type": "string", "description": "Denormalized vendor ID."}
+        },
+        "required": ["id", "name", "price", "vendorId"]
+    },
+    "Booking": {
+      "title": "Booking",
+      "type": "object",
+      "description": "Represents a booking made by a user for a service.",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "vendorId": { "type": "string" },
+        "serviceId": { "type": "string" },
+        "serviceName": { "type": "string" },
+        "date": { "type": "string", "format": "date" },
+        "status": { "type": "string", "enum": ["pending", "confirmed", "cancelled"] }
+      },
+      "required": ["id", "userId", "vendorId", "serviceId", "serviceName", "date", "status"]
+    },
+    "Transaction": {
+      "title": "Transaction",
+      "type": "object",
+      "description": "Represents a virtual balance transaction.",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "transactionDate": { "type": "string", "format": "date-time" },
+        "amount": { "type": "number" },
+        "type": { "type": "string", "enum": ["credit", "debit"] },
+        "description": { "type": "string" }
+      },
+      "required": ["id", "userId", "transactionDate", "amount", "type"]
+    },
+    "Notification": {
+      "title": "Notification",
+      "type": "object",
+      "description": "Represents a notification for a user.",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "message": { "type": "string" },
+        "status": { "type": "string", "enum": ["read", "unread"] }
+      },
+      "required": ["id", "userId", "createdAt", "message", "status"]
+    },
+    "CartItem": {
+      "title": "CartItem",
+      "type": "object",
+      "description": "Represents an item in a user's shopping cart.",
+      "properties": {
+        "id": { "type": "string" },
+        "productId": { "type": "string" },
+        "productName": { "type": "string" },
+        "price": { "type": "number" },
+        "quantity": { "type": "number" },
+        "imageUrl": { "type": "string" },
+        "vendorId": { "type": "string" }
+      },
+      "required": ["id", "productId", "productName", "price", "quantity", "vendorId"]
+    },
+    "Order": {
+        "title": "Order",
+        "type": "object",
+        "description": "Represents a completed order.",
+        "properties": {
+            "id": { "type": "string" },
+            "userId": { "type": "string" },
+            "createdAt": { "type": "string", "format": "date-time" },
+            "items": { "type": "array", "items": { "$ref": "#/entities/CartItem" } },
+            "totalAmount": { "type": "number" },
+            "status": { "type": "string", "enum": ["pending", "processing", "shipped", "delivered", "cancelled"] },
+            "paymentMethod": { "type": "string", "enum": ["virtual_balance", "cash_on_delivery"] }
+        },
+        "required": ["id", "userId", "createdAt", "items", "totalAmount", "status", "paymentMethod"]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous",
+      "phone"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/announcements/{announcementId}",
+        "definition": {
+          "entityName": "Announcement",
+          "schema": { "$ref": "#/entities/Announcement" },
+          "description": "Stores site-wide announcements. Publicly readable, admin writable."
+        }
+      },
+      {
+        "path": "/charity_projects/{projectId}",
+        "definition": {
+          "entityName": "CharityProject",
+          "schema": { "$ref": "#/entities/CharityProject" },
+          "description": "Stores social responsibility projects. Publicly readable, admin writable."
+        }
+      },
+      {
+        "path": "/users/{userId}",
+        "definition": {
+          "entityName": "UserProfile",
+          "schema": { "$ref": "#/entities/UserProfile" },
+          "description": "Stores user profiles for all roles."
+        }
+      },
+      {
+        "path": "/users/{vendorId}/subscriptions/{subscriptionId}",
+        "definition": {
+          "entityName": "Subscription",
+          "schema": { "$ref": "#/entities/Subscription" },
+          "description": "Stores a vendor's subscription history."
+        }
+      },
+      {
+        "path": "/users/{userId}/bookings/{bookingId}",
+        "definition": {
+          "entityName": "Booking",
+          "schema": { "$ref": "#/entities/Booking" },
+          "description": "Stores bookings made by users."
+        }
+      },
+      {
+        "path": "/users/{userId}/notifications/{notificationId}",
+        "definition": {
+            "entityName": "Notification",
+            "schema": { "$ref": "#/entities/Notification" },
+            "description": "Stores notifications for a specific user."
+        }
+      },
+      {
+        "path": "/users/{userId}/transactions/{transactionId}",
+        "definition": {
+            "entityName": "Transaction",
+            "schema": { "$ref": "#/entities/Transaction" },
+            "description": "Stores transactions for a specific user."
+        }
+      },
+      {
+        "path": "/users/{userId}/cart/{cartItemId}",
+        "definition": {
+            "entityName": "CartItem",
+            "schema": { "$ref": "#/entities/CartItem" },
+            "description": "Stores items in a user's shopping cart."
+        }
+      },
+      {
+        "path": "/users/{userId}/orders/{orderId}",
+        "definition": {
+            "entityName": "Order",
+            "schema": { "$ref": "#/entities/Order" },
+            "description": "Stores a user's past orders."
+        }
+      },
+      {
+        "path": "/users/{vendorId}/services/{serviceId}",
+        "definition": {
+          "entityName": "Service",
+          "schema": { "$ref": "#/entities/Service" },
+          "description": "Stores services offered by a vendor."
+        }
+      },
+      {
+          "path": "/users/{vendorId}/services/{serviceId}/products/{productId}",
+          "definition": {
+              "entityName": "Product",
+              "schema": { "$ref": "#/entities/Product" },
+              "description": "Stores products for a specific service."
+          }
+      }
+    ]
+  }
+}

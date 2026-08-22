@@ -1,0 +1,100 @@
+{
+  "placeholderImages": [
+    {
+      "id": "hero-main",
+      "description": "Scenic waterfall landscape",
+      "imageUrl": "https://images.unsplash.com/photo-1656288227038-28aaa4f6b8ad?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHx3YXRlcmZhbGwlMjBsYW5kc2NhcGV8ZW58MHx8fHwxNzY3NzQxNTkzfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "waterfall landscape"
+    },
+    {
+      "id": "banner-taxi",
+      "description": "A yellow taxi driving through a city at night",
+      "imageUrl": "https://images.unsplash.com/photo-1675674681609-8a5232f736db?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHx0YXhpJTIwY2l0eXxlbnwwfHx8fDE3Njc3Mjk4OTJ8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "taxi city"
+    },
+    {
+      "id": "banner-deliver",
+      "description": "A person on a scooter delivering a package",
+      "imageUrl": "https://images.unsplash.com/photo-1762851452423-34e7cf452780?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxkZWxpdmVyeSUyMHNjb290ZXJ8ZW58MHx8fHwxNzY3NjczODU4fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "delivery scooter"
+    },
+    {
+      "id": "banner-services",
+      "description": "A montage of different professional services",
+      "imageUrl": "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxwcm9mZXNzaW9uYWwlMjBzZXJ2aWNlc3xlbnwwfHx8fDE3Njc3NDI2NTd8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "professional services"
+    },
+    {
+      "id": "hotel-1",
+      "description": "Modern hotel room with a city view.",
+      "imageUrl": "https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8aG90ZWwlMjByb29tfGVufDB8fHx8MTc2Nzc0MTU5Mnww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "hotel room"
+    },
+    {
+      "id": "hotel-2",
+      "description": "Hotel swimming pool area.",
+      "imageUrl": "https://images.unsplash.com/photo-1563493653502-9e270be23596?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxob3RlbCUyMHBvb2x8ZW58MHx8fHwxNzY3NzQxNTkzfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "hotel pool"
+    },
+    {
+      "id": "hotel-3",
+      "description": "Lobby of a luxury hotel.",
+      "imageUrl": "https://images.unsplash.com/photo-1587702068694-a909ef4aa346?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxob3RlbCUyMGxvYmJ5fGVufDB8fHx8MTc2NzYyNDUxNHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "hotel lobby"
+    },
+    {
+      "id": "restaurant-1",
+      "description": "A well-plated dish at a fine dining restaurant.",
+      "imageUrl": "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxmaW5lJTIwZGluaW5nfGVufDB8fHx8MTc2Nzc0MTU5Mnww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "fine dining"
+    },
+    {
+      "id": "restaurant-2",
+      "description": "Interior of a cozy and elegant restaurant.",
+      "imageUrl": "https://images.unsplash.com/photo-1538334421852-687c439c92f4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8cmVzdGF1cmFudCUyMGludGVyaW9yfGVufDB8fHx8MTc2NzY3MDUyOHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "restaurant interior"
+    },
+    {
+      "id": "clinic-1",
+      "description": "A clean and modern medical clinic waiting room.",
+      "imageUrl": "https://images.unsplash.com/photo-1631248055158-edec7a3c072b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxtZWRpY2FsJTIwY2xpbmljfGVufDB8fHx8MTc2Nzc0MTU5Mnww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "medical clinic"
+    },
+    {
+      "id": "barber-1",
+      "description": "A stylish and classic barbershop interior.",
+      "imageUrl": "https://images.unsplash.com/photo-1738606406673-3a01d1517888?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8YmFyYmVyc2hvcCUyMGludGVyaW9yfGVufDB8fHx8MTc2NzYyMDA2MHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "barbershop interior"
+    },
+    {
+      "id": "salon-1",
+      "description": "A modern and bright beauty salon.",
+      "imageUrl": "https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxiZWF1dHklMjBzYWxvbnxlbnwwfHx8fDE3Njc3MjY3OTZ8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "beauty salon"
+    },
+    {
+      "id": "print-1",
+      "description": "Large format printer in a print shop.",
+      "imageUrl": "https://images.unsplash.com/photo-1571333194158-c476eb225f88?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxwcmludCUyMHNob3B8ZW58MHx8fHwxNzY3NzQxNTkzfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "print shop"
+    },
+    {
+      "id": "tourism-1",
+      "description": "Dramatic cliffside landscape.",
+      "imageUrl": "https://images.unsplash.com/photo-1596905738125-a6b51b1bdbb6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxjbGlmZiUyMGxhbmRzY2FwZXxlbnwwfHx8fDE3Njc3NDE1OTN8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "cliff landscape"
+    },
+    {
+      "id": "tourism-2",
+      "description": "Tour group enjoying a scenic viewpoint.",
+      "imageUrl": "https://images.unsplash.com/photo-1723124624713-56cd3a1b00ab?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHx0b3VyJTIwZ3JvdXB8ZW58MHx8fHwxNzY3NzQxNTkzfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "tour group"
+    },
+    {
+      "id": "avatar-1",
+      "description": "Portrait of a smiling person.",
+      "imageUrl": "https://images.unsplash.com/photo-1522529599102-193c0d76b5b6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8c21pbGluZyUyMHBlcnNvbnxlbnwwfHx8fDE3Njc2MzQ4Mzd8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "smiling person"
+    }
+  ]
+}

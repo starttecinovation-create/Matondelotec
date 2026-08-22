@@ -1,0 +1,2 @@
+Esta pasta serve para armazenar ficheiros estáticos como imagens, vídeos ou documentos.
+Coloque o seu ficheiro 'logo.png' aqui.

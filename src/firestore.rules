@@ -1,0 +1,221 @@
+/**
+ * @file firestore.rules
+ * @description Security rules for the Angola Services Hub application.
+ *
+ * ## Core Philosophy
+ * This ruleset enforces a strict ownership model. A unified `users` collection
+ * stores profiles for all user roles. Users can only access their own data.
+ * Services are publicly readable but only managed by their owning vendor.
+ * Admins have special privileges for managing users and site-wide content.
+ */
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // -------------------------------------------------------------------------
+    // Helper Functions
+    // -------------------------------------------------------------------------
+
+    /**
+     * Checks if the user is authenticated.
+     */
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    /**
+     * Checks if the authenticated user's UID matches the provided UID.
+     */
+    function isOwner(uid) {
+      return isSignedIn() && request.auth.uid == uid;
+    }
+
+    /**
+     * Checks if the user making the request has the 'admin' role.
+     * Looks up the user's profile document to check their role.
+     */
+    function isAdmin() {
+      return isSignedIn() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+    
+    /**
+     * Checks if the user making the request has the 'vendor' role.
+     */
+    function isVendor(userId) {
+        return isOwner(userId) && get(/databases/$(database)/documents/users/$(userId)).data.role == 'vendor';
+    }
+
+    /**
+     * On create, validates that a denormalized 'id' field matches the user's UID.
+     */
+    function hasCorrectId(uid) {
+        return request.resource.data.id == uid;
+    }
+    
+    /**
+     * On create, validates that a denormalized 'userId' field matches the user's UID.
+     */
+    function hasCorrectUser(userId) {
+        return request.resource.data.userId == userId;
+    }
+
+    /**
+     * On create, validates that a denormalized 'vendorId' field matches the vendor's UID.
+     */
+    function hasCorrectVendor(vendorId) {
+        return request.resource.data.vendorId == vendorId;
+    }
+
+    /**
+    * Checks if the update is only changing fields that an Admin is allowed to change.
+    * This prevents admins from overwriting user-owned fields like 'createdAt'.
+    */
+    function isAdminUpdate() {
+      return isAdmin() && request.resource.data.id == resource.data.id && request.resource.data.createdAt == resource.data.createdAt;
+    }
+    
+    /**
+    * Checks if the update is a valid self-update by a user.
+    * Users cannot change their own role, id, or creation date.
+    */
+    function isSelfUpdate(userId) {
+      return isOwner(userId)
+             && request.resource.data.id == resource.data.id
+             && request.resource.data.role == resource.data.role
+             && request.resource.data.createdAt == resource.data.createdAt;
+    }
+
+    // -------------------------------------------------------------------------
+    // User Profiles (/users)
+    // -------------------------------------------------------------------------
+
+    /**
+     * @description Users can manage their own profile. Admins can view all profiles
+     *              and update specific fields like `verificationStatus`.
+     * @path /users/{userId}
+     */
+    match /users/{userId} {
+      allow get: if isOwner(userId) || isAdmin();
+      allow create: if isSignedIn() && hasCorrectId(request.auth.uid);
+      allow update: if isSelfUpdate(userId) || isAdminUpdate();
+      allow delete: if isOwner(userId) || isAdmin();
+      
+      allow list: if isAdmin(); // Only admins can list all users.
+
+      // -----------------------------------------------------------------------
+      // User Subcollections (Bookings, Notifications, etc.)
+      // -----------------------------------------------------------------------
+
+      /**
+       * @description A user can manage their own subcollections.
+       */
+      match /bookings/{bookingId} {
+        allow read, write: if isOwner(userId);
+        allow create: if isOwner(userId) && hasCorrectUser(userId);
+      }
+      
+      match /notifications/{notificationId} {
+         allow read, write: if isOwner(userId) && hasCorrectUser(userId);
+      }
+      
+      match /transactions/{transactionId} {
+        allow read: if isOwner(userId);
+        allow create: if isOwner(userId) && hasCorrectUser(userId);
+        allow update, delete: if false; // Transactions are immutable.
+      }
+      
+      match /cart/{cartItemId} {
+          allow read, write, delete: if isOwner(userId);
+      }
+      
+      match /orders/{orderId} {
+          allow read: if isOwner(userId);
+          allow create: if isOwner(userId) && hasCorrectUser(userId);
+          allow update, delete: if false; // Orders are immutable.
+      }
+      
+      match /subscriptions/{subscriptionId} {
+        allow read, write: if isOwner(userId);
+      }
+      
+      // -----------------------------------------------------------------------
+      // Vendor Services & Products
+      // -----------------------------------------------------------------------
+      /**
+       * @description Services are nested under the vendor's user document.
+       *              Only vendors can manage their own services.
+       */
+      match /services/{serviceId} {
+        allow get: if true;
+        allow list: if isOwner(userId);
+        allow create: if isVendor(userId) && hasCorrectVendor(userId);
+        allow update: if isVendor(userId) && request.resource.data.vendorId == resource.data.vendorId;
+        allow delete: if isVendor(userId);
+        
+        /**
+         * @description Products are nested under a service. Only the owning vendor can manage them.
+         */
+        match /products/{productId} {
+            allow get, list: if true;
+            allow create, update, delete: if isVendor(userId);
+        }
+      }
+    }
+      
+    // -----------------------------------------------------------------------
+    // Collection Group Queries
+    // -----------------------------------------------------------------------
+
+    /**
+     * @description Services are publicly readable via collection group queries.
+     * @path /{path=**}/services/{serviceId}
+     */
+    match /{path=**}/services/{serviceId} {
+      allow get, list: if true;
+    }
+    
+    /**
+     * @description Products are publicly readable via collection group queries.
+     * @path /{path=**}/products/{productId}
+     */
+    match /{path=**}/products/{productId} {
+      allow get, list: if true;
+    }
+    
+    /**
+     * @description Allow vendors to query for bookings related to them.
+     */
+    match /{path=**}/bookings/{bookingId} {
+        allow get, list: if isSignedIn() && request.auth.uid == resource.data.vendorId;
+    }
+
+    /**
+     * @description Allow a vendor to read an order if it contains an item they sell.
+     */
+    match /{path=**}/orders/{orderId} {
+        allow get: if isSignedIn() && resource.data.items.exists(item, item.vendorId == request.auth.uid);
+    }
+    
+    // -------------------------------------------------------------------------
+    // Site-wide Content
+    // -------------------------------------------------------------------------
+    
+    /**
+     * @description Announcements are publicly readable, but only managed by admins.
+     * @path /announcements
+     */
+    match /announcements/{announcementId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    
+    /**
+     * @description Charity Projects are publicly readable, but only managed by admins.
+     * @path /charity_projects/{projectId}
+     */
+    match /charity_projects/{projectId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+  }
+}

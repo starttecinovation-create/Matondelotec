@@ -15,6 +15,7 @@ import { useFirestore, useUser, useDoc, useCollection, useMemoFirebase } from '@
 import { updateProfile } from 'firebase/auth';
 import { useToast } from '@/hooks/use-toast';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Textarea } from '@/components/ui/textarea';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { errorEmitter } from '@/firebase/error-emitter';
@@ -31,7 +32,12 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 const profileFormSchema = z.object({
   displayName: z.string().min(1, 'O nome do negócio é obrigatório.'),
   email: z.string().email('Por favor, insira um email válido.'),
-  category: z.string().min(1, "A categoria é obrigatória.")
+  category: z.string().min(1, "A categoria é obrigatória."),
+  description: z.string().optional(),
+  phone: z.string().optional(),
+  address: z.string().optional(),
+  logoUrl: z.string().optional(),
+  openingHours: z.string().optional()
 });
 
 const balanceFormSchema = z.object({
@@ -173,6 +179,11 @@ export default function PartnerProfilePage() {
             displayName: userProfile?.displayName || '',
             email: user?.email || '',
             category: userProfile?.category || '',
+            description: userProfile?.description || '',
+            phone: userProfile?.phone || '',
+            address: userProfile?.address || '',
+            logoUrl: userProfile?.logoUrl || '',
+            openingHours: userProfile?.openingHours || '',
         },
         reValidateMode: 'onChange',
     });
@@ -182,7 +193,12 @@ export default function PartnerProfilePage() {
             profileForm.reset({
                 displayName: userProfile.displayName,
                 email: user?.email || '',
-                category: userProfile.category,
+                category: userProfile.category || '',
+                description: userProfile.description || '',
+                phone: userProfile.phone || '',
+                address: userProfile.address || '',
+                logoUrl: userProfile.logoUrl || '',
+                openingHours: userProfile.openingHours || '',
             });
         }
     }, [userProfile, user, profileForm]);
@@ -204,6 +220,11 @@ export default function PartnerProfilePage() {
         const updateData = {
             displayName: values.displayName,
             category: values.category,
+            description: values.description || '',
+            phone: values.phone || '',
+            address: values.address || '',
+            logoUrl: values.logoUrl || '',
+            openingHours: values.openingHours || '',
         };
         batch.update(userProfileRef, updateData);
 
@@ -309,6 +330,67 @@ export default function PartnerProfilePage() {
                                                 <FormItem>
                                                     <FormLabel>Email</FormLabel>
                                                     <FormControl><Input type="email" readOnly disabled {...field} /></FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+                                        <FormField
+                                            control={profileForm.control}
+                                            name="phone"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel>Contactos Telefónicos</FormLabel>
+                                                    <FormControl><Input placeholder="Ex: +244 923 000 000" {...field} /></FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+                                        <FormField
+                                            control={profileForm.control}
+                                            name="address"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel>Localização (Endereço)</FormLabel>
+                                                    <FormControl><Input placeholder="Ex: Av. Deolinda Rodrigues, Luanda" {...field} /></FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+                                        <FormField
+                                            control={profileForm.control}
+                                            name="openingHours"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel>Horário de Funcionamento</FormLabel>
+                                                    <FormControl><Input placeholder="Ex: Seg-Sáb: 08:00 - 20:00, Dom: Fechado" {...field} /></FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+                                        <FormField
+                                            control={profileForm.control}
+                                            name="logoUrl"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel>URL do Logo / Imagem de Capa</FormLabel>
+                                                    <FormControl><Input placeholder="Ex: https://images.unsplash.com/... ou link de imagem" {...field} /></FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+                                        <FormField
+                                            control={profileForm.control}
+                                            name="description"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel>Descrição do Negócio</FormLabel>
+                                                    <FormControl>
+                                                        <Textarea 
+                                                            placeholder="Descreva os seus serviços, história, especialidades e diferenciais..." 
+                                                            className="min-h-[100px]" 
+                                                            {...field} 
+                                                        />
+                                                    </FormControl>
                                                     <FormMessage />
                                                 </FormItem>
                                             )}

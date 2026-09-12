@@ -1,6 +1,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useCollection, useFirestore, useUser, useMemoFirebase } from '@/firebase';
+import { collection, query, orderBy } from 'firebase/firestore';
+import { type CrmLog } from '@/lib/types';
 import { initWorkspaceAuth, googleWorkspaceSignIn, logoutWorkspace } from '@/lib/workspace';
 import { GoogleSignInButton } from '@/components/google-signin-button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -84,6 +87,19 @@ interface KeepNote {
 }
 
 export default function CRMPage() {
+  const { user: partnerUser } = useUser();
+  const firestore = useFirestore();
+
+  const crmLogsQuery = useMemoFirebase(() => {
+    if (!partnerUser || !firestore) return null;
+    return query(
+      collection(firestore, `users/${partnerUser.uid}/crmLogs`),
+      orderBy('createdAt', 'desc')
+    );
+  }, [firestore, partnerUser]);
+
+  const { data: crmLogs, isLoading: isCrmLogsLoading } = useCollection<CrmLog>(crmLogsQuery);
+
   const [needsAuth, setNeedsAuth] = useState(true);
   const [token, setToken] = useState<string | null>(null);
   const [user, setUser] = useState<any>(null);
@@ -91,7 +107,7 @@ export default function CRMPage() {
   const { toast } = useToast();
 
   // Active workspace-wide tab
-  const [activeTab, setActiveTab] = useState('gmail_docs');
+  const [activeTab, setActiveTab] = useState('crm_logs_tab');
 
   // Sub-tabs inside each module
   const [activeMailTab, setActiveMailTab] = useState('inbox');
@@ -1187,7 +1203,10 @@ export default function CRMPage() {
         {/* RIGHT COLUMN: GOOGLE WORKSPACE MASTER TABS */}
         <div className="xl:col-span-3 space-y-6" id="workspace_core_tabs_container">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-2 md:grid-cols-5 gap-1 mb-6 bg-muted p-1 rounded-xl">
+            <TabsList className="grid w-full grid-cols-2 md:grid-cols-6 gap-1 mb-6 bg-muted p-1 rounded-xl">
+              <TabsTrigger value="crm_logs_tab" className="rounded-lg text-xs flex items-center justify-center gap-1.5 py-2">
+                <UserCheck className="w-3.5 h-3.5 text-green-600"/> Histórico CRM
+              </TabsTrigger>
               <TabsTrigger value="gmail_docs" className="rounded-lg text-xs flex items-center justify-center gap-1.5 py-2">
                 <Mail className="w-3.5 h-3.5 text-blue-600"/> Gmail & Docs
               </TabsTrigger>
@@ -1204,6 +1223,93 @@ export default function CRMPage() {
                 <Sparkles className="w-3.5 h-3.5 text-purple-600"/> NotebookLM Room
               </TabsTrigger>
             </TabsList>
+
+            {/* TAB: LOCAL CRM LOGS */}
+            <TabsContent value="crm_logs_tab" className="space-y-6 animate-in fade-in duration-300">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <UserCheck className="w-5 h-5 text-green-600" /> Histórico de Atendimentos (CRM)
+                  </CardTitle>
+                  <CardDescription>
+                    Acompanhe o histórico completo de serviços prestados aos seus clientes, as notas de atendimento registadas e o faturamento acumulado.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  {/* Brief metrics */}
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div className="p-4 border rounded-xl bg-slate-50/50">
+                      <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block">Total de Atendimentos</span>
+                      <span className="text-2xl font-black text-slate-800">{crmLogs ? crmLogs.length : 0}</span>
+                    </div>
+                    <div className="p-4 border rounded-xl bg-slate-50/50">
+                      <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block">Faturamento Realizado</span>
+                      <span className="text-2xl font-black text-green-700">
+                        {new Intl.NumberFormat('pt-AO', { style: 'currency', currency: 'AOA' }).format(
+                          crmLogs ? crmLogs.reduce((acc, log) => acc + (log.price || 0), 0) : 0
+                        )}
+                      </span>
+                    </div>
+                    <div className="p-4 border rounded-xl bg-slate-50/50">
+                      <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block">Último Atendimento</span>
+                      <span className="text-sm font-semibold text-slate-700">
+                        {crmLogs && crmLogs.length > 0 
+                          ? new Date(crmLogs[0].date).toLocaleDateString('pt-AO') + ' ' + (crmLogs[0].time || '')
+                          : 'Sem registos'}
+                      </span>
+                    </div>
+                  </div>
+
+                  {isCrmLogsLoading ? (
+                    <div className="space-y-3">
+                      <Skeleton className="h-24 w-full" />
+                      <Skeleton className="h-24 w-full" />
+                    </div>
+                  ) : crmLogs && crmLogs.length > 0 ? (
+                    <div className="space-y-4">
+                      {crmLogs.map((log) => (
+                        <div key={log.id} className="p-4 border rounded-xl bg-background hover:shadow-sm transition-all space-y-3">
+                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b pb-2">
+                            <div>
+                              <h4 className="text-sm font-bold text-slate-800">{log.clientName}</h4>
+                              <p className="text-xs text-muted-foreground">
+                                {log.clientEmail} {log.clientPhone ? `• ${log.clientPhone}` : ''}
+                              </p>
+                            </div>
+                            <div className="text-right">
+                              <span className="text-xs font-semibold bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-full">
+                                {new Intl.NumberFormat('pt-AO', { style: 'currency', currency: 'AOA' }).format(log.price || 0)}
+                              </span>
+                            </div>
+                          </div>
+
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-slate-600">
+                            <div>
+                              <strong>Serviço prestado:</strong> <span className="font-semibold text-slate-700">{log.serviceName}</span>
+                            </div>
+                            <div className="sm:text-right">
+                              <strong>Data do Atendimento:</strong> <span className="font-semibold text-slate-700">{log.date} {log.time ? `às ${log.time}` : ''}</span>
+                            </div>
+                          </div>
+
+                          <div className="bg-slate-50 p-2.5 rounded text-xs text-slate-600 italic border-l-2 border-slate-400">
+                            <strong>Notas de Acompanhamento:</strong> {log.notes}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-12 border rounded-xl bg-slate-50/20">
+                      <UserCheck className="w-10 h-10 text-muted-foreground mx-auto mb-2" />
+                      <h4 className="font-bold text-slate-800">Nenhum atendimento registado no CRM</h4>
+                      <p className="text-xs text-muted-foreground mt-1 max-w-sm mx-auto">
+                        Quando concluir atendimentos agendados na aba "Reservas", as notas e o histórico de faturamento dos seus clientes serão registados aqui automaticamente.
+                      </p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </TabsContent>
 
             {/* TAB 1: GMAIL, CAMPAIGNS, DOCS & SHEETS */}
             <TabsContent value="gmail_docs" className="space-y-6 animate-in fade-in duration-300">

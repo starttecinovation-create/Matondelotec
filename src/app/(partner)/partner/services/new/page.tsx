@@ -24,6 +24,7 @@ const serviceFormSchema = z.object({
     name: z.string().min(3, "O nome deve ter pelo menos 3 caracteres."),
     description: z.string().min(10, "A descrição deve ter pelo menos 10 caracteres."),
     price: z.coerce.number().min(0, "O preço não pode ser negativo."),
+    duration: z.coerce.number().min(5, "A duração deve ser de pelo menos 5 minutos."),
 });
 
 export default function PartnerServiceNewPage() {
@@ -43,6 +44,7 @@ export default function PartnerServiceNewPage() {
             name: '',
             description: '',
             price: 0,
+            duration: 30,
         },
     });
 
@@ -202,6 +204,19 @@ export default function PartnerServiceNewPage() {
                                     render={({ field }) => (
                                         <FormItem>
                                         <FormLabel>Preço Base (em AOA)</FormLabel>
+                                        <FormControl>
+                                            <Input type="number" {...field} />
+                                        </FormControl>
+                                        <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="duration"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                        <FormLabel>Duração do Serviço (em minutos)</FormLabel>
                                         <FormControl>
                                             <Input type="number" {...field} />
                                         </FormControl>

@@ -76,6 +76,11 @@ export type UserProfile = {
     commune?: string;
   };
   verificationStatus?: VerificationStatus;
+  description?: string;
+  phone?: string;
+  address?: string;
+  logoUrl?: string;
+  openingHours?: string;
   userDocuments?: {
     identityCardUrl?: string;
     criminalRecordUrl?: string;
@@ -115,6 +120,7 @@ export type Service = {
     longitude: number;
   };
   localContacts?: LocalContact[];
+  duration?: number; // Duration in minutes
 };
 
 export type Product = {
@@ -133,7 +139,48 @@ export type Booking = {
     serviceId: string; // Full Firestore path
     serviceName: string;
     date: string; // Stored as YYYY-MM-DD
-    status: 'Confirmada' | 'Pendente' | 'Cancelada';
+    status: 'Confirmada' | 'Pendente' | 'Cancelada' | 'Concluída';
+    professionalId?: string;
+    professionalName?: string;
+    time?: string; // e.g. "14:30"
+    notes?: string;
+    price?: number;
+};
+
+export type WorkingShift = {
+  dayOfWeek: number; // 0 for Sunday, 1 for Monday, etc.
+  start: string;     // "09:00"
+  end: string;       // "18:00"
+  active: boolean;
+};
+
+export type Professional = {
+  id: string;
+  vendorId: string;
+  name: string;
+  email?: string;
+  phone?: string;
+  isActive: boolean;
+  specialties: string[]; // Service IDs
+  shifts: WorkingShift[];
+};
+
+export type CrmLog = {
+  id: string;
+  bookingId: string;
+  vendorId: string;
+  clientName: string;
+  clientEmail: string;
+  clientPhone?: string;
+  serviceId: string;
+  serviceName: string;
+  professionalId?: string;
+  professionalName?: string;
+  date: string;
+  time?: string;
+  price: number;
+  notes?: string;
+  completedAt: any;
 };
 
 export type Transaction = {

@@ -429,11 +429,131 @@ function BookingItem({ booking }: { booking: Booking }) {
     }
   };
 
+  const [isRescheduling, setIsRescheduling] = useState(false);
+  const [rescheduleDate, setRescheduleDate] = useState(booking.date || '');
+  const [rescheduleTime, setRescheduleTime] = useState(booking.time || '');
+  
+  const [isCompleting, setIsCompleting] = useState(false);
+  const [crmNotes, setCrmNotes] = useState('');
+
+  const handleReschedule = async () => {
+    if (!firestore || !booking.userId) return;
+    if (!rescheduleDate) {
+      toast({ variant: 'destructive', title: 'Data inválida' });
+      return;
+    }
+    setIsLoading(true);
+
+    const bookingDocRef = firestoreDoc(firestore, `users/${booking.userId}/bookings/${booking.id}`);
+    const batch = writeBatch(firestore);
+
+    try {
+      batch.update(bookingDocRef, {
+        date: rescheduleDate,
+        time: rescheduleTime
+      });
+
+      // Save notification for client
+      const clientNotifRef = firestoreDoc(collection(firestore, `users/${booking.userId}/notifications`));
+      batch.set(clientNotifRef, {
+        id: clientNotifRef.id,
+        userId: booking.userId,
+        title: 'Agendamento Reagendado',
+        message: `O seu agendamento para "${booking.serviceName}" foi reagendado para o dia ${rescheduleDate} ${rescheduleTime ? 'às ' + rescheduleTime : ''}.`,
+        createdAt: serverTimestamp(),
+        read: false,
+      });
+
+      await batch.commit();
+
+      toast({
+        title: 'Reserva Reagendada!',
+        description: 'A nova data e hora foram guardadas com sucesso.'
+      });
+      setIsRescheduling(false);
+    } catch (error) {
+      console.error("Error rescheduling booking: ", error);
+      toast({
+        variant: "destructive",
+        title: 'Erro!',
+        description: 'Não foi possível reagendar.'
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleConcludeBooking = async () => {
+    if (!firestore || !booking.userId) return;
+    setIsLoading(true);
+
+    const bookingDocRef = firestoreDoc(firestore, `users/${booking.userId}/bookings/${booking.id}`);
+    const batch = writeBatch(firestore);
+
+    try {
+      // Mark booking status as 'Concluída' and save notes
+      batch.update(bookingDocRef, { 
+        status: 'Concluída',
+        notes: crmNotes || 'Atendimento concluído com sucesso.'
+      });
+
+      // Register log in partner's CRM
+      const crmLogRef = firestoreDoc(collection(firestore, `users/${booking.vendorId}/crmLogs`));
+      
+      const servicePrice = booking.price || 0;
+
+      batch.set(crmLogRef, {
+        id: crmLogRef.id,
+        userId: booking.userId,
+        clientName: client?.displayName || 'Utilizador Matondelo',
+        clientEmail: client?.email || '',
+        clientPhone: client?.phone || '',
+        date: booking.date,
+        time: booking.time || '',
+        serviceId: booking.serviceId,
+        serviceName: booking.serviceName,
+        price: servicePrice,
+        notes: crmNotes || 'Atendimento concluído com sucesso.',
+        createdAt: serverTimestamp()
+      });
+
+      // Save notification for client
+      const clientNotifRef = firestoreDoc(collection(firestore, `users/${booking.userId}/notifications`));
+      batch.set(clientNotifRef, {
+        id: clientNotifRef.id,
+        userId: booking.userId,
+        title: 'Serviço Concluído!',
+        message: `O seu atendimento para "${booking.serviceName}" foi concluído com sucesso. Obrigado pela preferência!`,
+        createdAt: serverTimestamp(),
+        read: false,
+      });
+
+      await batch.commit();
+
+      toast({
+        title: 'Atendimento Concluído!',
+        description: 'A reserva foi concluída e registada no CRM com sucesso.'
+      });
+      setIsCompleting(false);
+    } catch (error) {
+      console.error("Error concluding booking: ", error);
+      toast({
+        variant: "destructive",
+        title: 'Erro!',
+        description: 'Não foi possível concluir o atendimento.'
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   if (isClientLoading) {
     return <Skeleton className="h-32 w-full rounded-xl" />;
   }
 
   const isPending = booking.status === 'Pendente';
+  const isConfirmed = booking.status === 'Confirmada';
+  const isConcluded = booking.status === 'Concluída';
   const bookingDate = new Date(booking.date);
 
   return (
@@ -449,6 +569,7 @@ function BookingItem({ booking }: { booking: Booking }) {
               <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
                 <CalendarCheck className="w-3.5 h-3.5" />
                 {bookingDate.toLocaleDateString('pt-AO', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+                {booking.time && <span className="ml-2 bg-blue-50 text-blue-700 px-1.5 py-0.5 rounded text-[10px] font-bold"><Clock className="w-3 h-3 inline mr-0.5" />{booking.time}</span>}
               </p>
             </div>
           </div>
@@ -461,14 +582,26 @@ function BookingItem({ booking }: { booking: Booking }) {
             <div className="text-muted-foreground">
               <strong>Email:</strong> {client?.email}
             </div>
+            {booking.professionalName && (
+              <div className="text-slate-600 font-medium">
+                <strong>Profissional:</strong> {booking.professionalName}
+              </div>
+            )}
           </div>
+          
+          {booking.notes && (
+            <div className="mt-2 text-xs bg-muted/50 p-2 rounded border text-slate-600 italic">
+              <strong>Notas CRM:</strong> {booking.notes}
+            </div>
+          )}
         </div>
 
         <div className="flex flex-col md:items-end justify-between gap-3 shrink-0">
           <Badge 
-            variant={booking.status === 'Confirmada' ? 'default' : booking.status === 'Pendente' ? 'secondary' : 'destructive'} 
+            variant={booking.status === 'Confirmada' ? 'default' : booking.status === 'Concluída' ? 'outline' : booking.status === 'Pendente' ? 'secondary' : 'destructive'} 
             className={`text-xs px-2.5 py-1 ${
               booking.status === 'Confirmada' ? 'bg-green-600 text-white hover:bg-green-700' : 
+              booking.status === 'Concluída' ? 'bg-blue-50 text-blue-700 hover:bg-blue-100 border-blue-200' : 
               booking.status === 'Pendente' ? 'bg-amber-100 text-amber-800 hover:bg-amber-200 border-amber-200' : 
               'bg-red-100 text-red-800 hover:bg-red-200'
             }`}
@@ -476,7 +609,7 @@ function BookingItem({ booking }: { booking: Booking }) {
             {booking.status}
           </Badge>
 
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <Button 
               onClick={() => setIsMsgOpen(true)} 
               variant="outline" 
@@ -485,6 +618,37 @@ function BookingItem({ booking }: { booking: Booking }) {
             >
               <MessageSquare className="w-3.5 h-3.5" /> WhatsApp
             </Button>
+
+            {isConfirmed && (
+              <>
+                <Button 
+                  onClick={() => setIsCompleting(true)} 
+                  variant="outline"
+                  size="sm" 
+                  className="h-8 text-xs border-blue-200 text-blue-700 hover:bg-blue-50 gap-1"
+                >
+                  Concluir Atendimento
+                </Button>
+                <Button 
+                  onClick={() => setIsRescheduling(true)} 
+                  variant="outline"
+                  size="sm" 
+                  className="h-8 text-xs gap-1"
+                >
+                  Reagendar
+                </Button>
+                <Button 
+                  onClick={() => handleUpdateStatus('Cancelada')} 
+                  variant="destructive" 
+                  disabled={isLoading} 
+                  size="sm" 
+                  className="h-8 text-xs font-semibold"
+                >
+                  {isLoading && <Loader2 className="mr-1.5 h-3 w-3 animate-spin" />}
+                  Cancelar
+                </Button>
+              </>
+            )}
 
             {isPending && (
               <>
@@ -512,6 +676,53 @@ function BookingItem({ booking }: { booking: Booking }) {
           </div>
         </div>
       </div>
+
+      {/* Reschedule Inline Form */}
+      {isRescheduling && (
+        <div className="bg-muted/30 p-4 border-t border-border space-y-3">
+          <h4 className="text-xs font-bold text-slate-700">Reagendar Atendimento</h4>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="text-[10px] font-bold text-muted-foreground block mb-1">Nova Data</label>
+              <Input type="date" value={rescheduleDate} onChange={(e) => setRescheduleDate(e.target.value)} className="h-8 text-xs bg-background" />
+            </div>
+            <div>
+              <label className="text-[10px] font-bold text-muted-foreground block mb-1">Nova Hora</label>
+              <Input type="text" placeholder="Ex: 14:30" value={rescheduleTime} onChange={(e) => setRescheduleTime(e.target.value)} className="h-8 text-xs bg-background" />
+            </div>
+          </div>
+          <div className="flex justify-end gap-2">
+            <Button variant="ghost" size="sm" onClick={() => setIsRescheduling(false)} className="h-8 text-xs">Cancelar</Button>
+            <Button size="sm" onClick={handleReschedule} disabled={isLoading} className="h-8 text-xs bg-[#0F3460] text-white">
+              {isLoading && <Loader2 className="mr-1 h-3 w-3 animate-spin" />}
+              Guardar Reagendamento
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* Conclude Service CRM Form */}
+      {isCompleting && (
+        <div className="bg-muted/30 p-4 border-t border-border space-y-3">
+          <h4 className="text-xs font-bold text-blue-700">Concluir Atendimento & Registar no CRM</h4>
+          <div>
+            <label className="text-[10px] font-bold text-muted-foreground block mb-1">Notas, Observações ou Histórico do Cliente</label>
+            <textarea 
+              placeholder="Ex: Corte degradê com risco. Cabelo seco, recomendado champô hidratante. Pagou pontualmente." 
+              value={crmNotes} 
+              onChange={(e) => setCrmNotes(e.target.value)} 
+              className="w-full min-h-[80px] p-2 text-xs bg-background border rounded-md focus:outline-none focus:ring-1 focus:ring-primary"
+            />
+          </div>
+          <div className="flex justify-end gap-2">
+            <Button variant="ghost" size="sm" onClick={() => setIsCompleting(false)} className="h-8 text-xs">Cancelar</Button>
+            <Button size="sm" onClick={handleConcludeBooking} disabled={isLoading} className="h-8 text-xs bg-green-600 hover:bg-green-700 text-white">
+              {isLoading && <Loader2 className="mr-1 h-3 w-3 animate-spin" />}
+              Concluir e Registar no CRM
+            </Button>
+          </div>
+        </div>
+      )}
 
       <WhatsAppMessageDialog 
         isOpen={isMsgOpen} 

@@ -30,6 +30,7 @@ import { usePartner } from '../context/partner-context'; // Import the new conte
 const navLinks = [
   { href: '/partner/dashboard', label: 'Painel', icon: LayoutDashboard },
   { href: '/partner/crm', label: 'CRM Inteligente', icon: Handshake },
+  { href: '/partner/professionals', label: 'Profissionais', icon: User },
   { href: '/partner/services', label: 'Serviços', icon: ShoppingBag },
   { href: '/partner/bookings', label: 'Reservas', icon: CalendarCheck },
   { href: '/partner/subscription', label: 'Subscrição', icon: Crown },

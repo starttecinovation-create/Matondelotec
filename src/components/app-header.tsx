@@ -75,7 +75,7 @@ export function AppHeader() {
         </div>
 
         <div className="flex items-center gap-2">
-            <Button variant="outline" className="hidden lg:flex border-amber-500/30 bg-amber-500/5 text-[#d47a24] hover:bg-amber-500/10 hover:text-[#b4651a] font-bold text-xs gap-1.5 h-9 px-3" asChild>
+            <Button variant="outline" className="hidden sm:flex border-amber-500/30 bg-amber-500/5 text-[#d47a24] hover:bg-amber-500/10 hover:text-[#b4651a] font-bold text-xs gap-1.5 h-9 px-3" asChild>
                 <Link href={user ? "/partner/dashboard" : "/login"}>
                     <Briefcase className="h-4 w-4" />
                     Painel Corporativo
@@ -123,6 +123,12 @@ export function AppHeader() {
                   <Link href="/profile">
                     <User className="mr-2 h-4 w-4" />
                     <span>Perfil</span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/partner/dashboard">
+                    <Briefcase className="mr-2 h-4 w-4 text-[#d47a24]" />
+                    <span className="text-[#d47a24] font-semibold">Painel Corporativo</span>
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>

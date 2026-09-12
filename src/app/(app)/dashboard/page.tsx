@@ -123,7 +123,7 @@ function Banners() {
 
 export default function DashboardPage() {
     const firestore = useFirestore();
-    const { user, isLoading: isUserLoading } = useUser();
+    const { user, isUserLoading } = useUser();
     const router = useRouter();
 
     // INTERCETOR DE AUTENTICAÇÃO

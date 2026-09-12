@@ -1,13 +1,13 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { HeartHandshake, Loader2, Wallet } from 'lucide-react';
 import Image from 'next/image';
 import { useCollection, useFirestore, useMemoFirebase, useUser, useDoc } from '@/firebase';
-import { collection, doc } from 'firebase/firestore';
+import { collection, doc, setDoc } from 'firebase/firestore';
 import type { UserProfile } from '@/lib/types';
 export type CharityProject = any;
 import { Skeleton } from '@/components/ui/skeleton';
@@ -141,6 +141,52 @@ export default function DonationsPage() {
     }, [firestore]);
 
     const { data: projects, isLoading } = useCollection<CharityProject>(projectsQuery);
+
+    // Auto-seed charity projects if collection is empty
+    useEffect(() => {
+        if (!isLoading && (!projects || projects.length === 0) && firestore) {
+            const seedProjects = async () => {
+                const defaultProjects = [
+                    {
+                        id: 'proj-educar',
+                        title: 'Educar Angola',
+                        organization: 'Fundação Kiandando',
+                        description: 'Apoio à construção e renovação de salas de aula e fornecimento de material escolar básico para crianças carenciadas no Bié.',
+                        raised: 1200000,
+                        goal: 3000000,
+                        imageUrl: 'https://picsum.photos/seed/edu/600/400'
+                    },
+                    {
+                        id: 'proj-fome-zero',
+                        title: 'Fome Zero Huíla',
+                        organization: 'Aliança Solidária',
+                        description: 'Distribuição de cabazes alimentares, sementes agrícolas e sistemas de captação de água para as famílias afetadas pela seca extrema na Huíla.',
+                        raised: 2500000,
+                        goal: 5000000,
+                        imageUrl: 'https://picsum.photos/seed/food/600/400'
+                    },
+                    {
+                        id: 'proj-sorrisos',
+                        title: 'Sorrisos Saudáveis',
+                        organization: 'Médicos do Futuro',
+                        description: 'Campanha de cuidados de saúde oral e geral nas comunidades periurbanas de Luanda, oferecendo consultas de rastreio e kits de higiene.',
+                        raised: 800000,
+                        goal: 2000000,
+                        imageUrl: 'https://picsum.photos/seed/health/600/400'
+                    }
+                ];
+
+                for (const p of defaultProjects) {
+                    try {
+                        await setDoc(doc(firestore, 'charity_projects', p.id), p);
+                    } catch (e) {
+                        console.error("Error seeding charity project:", p.id, e);
+                    }
+                }
+            };
+            seedProjects();
+        }
+    }, [projects, isLoading, firestore]);
 
     const handleDonateClick = (project: CharityProject) => {
         setSelectedProject(project);

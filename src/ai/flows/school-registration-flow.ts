@@ -47,7 +47,7 @@ Do not ask for any documents or payments through this chat. Your role is to gath
     model: 'googleai/gemini-2.5-flash',
     prompt: prompt,
     history: input.history,
-  });
+  } as any);
 
   return { response: output.text ?? "Desculpe, não consegui processar o seu pedido. Pode tentar novamente?" };
 }

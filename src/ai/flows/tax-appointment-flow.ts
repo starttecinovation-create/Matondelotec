@@ -57,8 +57,8 @@ Start the conversation by greeting the user and asking which tax they would like
   const { output } = await ai.generate({
     model: 'googleai/gemini-2.5-flash',
     prompt: prompt,
-    history: input.history,
-  });
+    history: input.history as any,
+  } as any);
 
   return { response: output.text ?? "Desculpe, não consegui processar o seu pedido. Pode tentar novamente?" };
 }

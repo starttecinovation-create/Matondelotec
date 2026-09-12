@@ -50,7 +50,7 @@ const placePhotoFlow = ai.defineFlow(
       const findPlaceResponse = await client.findPlaceFromText({
         params: {
           input: textQuery,
-          inputtype: 'textquery',
+          inputtype: 'textquery' as any,
           fields: ['place_id', 'photos'],
           key: apiKey,
         },

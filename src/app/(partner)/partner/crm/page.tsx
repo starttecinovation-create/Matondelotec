@@ -1378,7 +1378,7 @@ export default function CRMPage() {
                     <CardTitle className="text-sm font-bold">Lista de Arquivos no Google Drive</CardTitle>
                     <CardDescription className="text-xs">Documentos de faturamento, apresentações e propostas salvos de forma segura.</CardDescription>
                   </div>
-                  <Button variant="ghost" size="xs" onClick={fetchDriveFiles} className="text-xs flex items-center gap-1">
+                  <Button variant="ghost" size="sm" onClick={fetchDriveFiles} className="text-xs flex items-center gap-1">
                     <RefreshCw className={`w-3.5 h-3.5 ${isLoadingDrive ? 'animate-spin' : ''}`} /> Atualizar Drive
                   </Button>
                 </CardHeader>
@@ -1409,7 +1409,7 @@ export default function CRMPage() {
                               <span className="text-[9px] text-muted-foreground block truncate">ID: {file.id}</span>
                             </div>
                           </div>
-                          <Button asChild size="xs" variant="ghost" className="h-6 w-6 p-0 text-[#0F3460] hover:bg-muted">
+                          <Button asChild size="sm" variant="ghost" className="h-6 w-6 p-0 text-[#0F3460] hover:bg-muted">
                             <a href={file.webViewLink} target="_blank" rel="noopener noreferrer">
                               <ExternalLink className="w-3.5 h-3.5" />
                             </a>
@@ -1536,7 +1536,7 @@ export default function CRMPage() {
                                 <span className="text-[9px] text-muted-foreground block">{c.section || 'Turma Geral'}</span>
                               </div>
                               {c.alternateLink && (
-                                <Button asChild size="xs" variant="ghost">
+                                <Button asChild size="sm" variant="ghost">
                                   <a href={c.alternateLink} target="_blank" rel="noopener noreferrer">
                                     Aceder <ExternalLink className="w-3 h-3 ml-1" />
                                   </a>
@@ -1613,7 +1613,7 @@ export default function CRMPage() {
                         <p className="font-bold">Link da Reunião Ativo:</p>
                         <div className="flex gap-2">
                           <Input value={createdMeetUrl} readOnly className="text-[11px] h-7 bg-white flex-1" />
-                          <Button asChild size="xs" variant="outline" className="border-red-300">
+                          <Button asChild size="sm" variant="outline" className="border-red-300">
                             <a href={createdMeetUrl} target="_blank" rel="noreferrer">Aceder</a>
                           </Button>
                         </div>

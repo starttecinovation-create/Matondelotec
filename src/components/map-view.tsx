@@ -67,7 +67,6 @@ const MapViewComponent = forwardRef<MapViewHandle, MapViewProps>(
 
     return (
         <Map
-          ref={mapRef}
           defaultCenter={LUANDA_POSITION}
           defaultZoom={12}
           mapId={process.env.NEXT_PUBLIC_GOOGLE_MAP_ID || "DEMO_MAP_ID"}

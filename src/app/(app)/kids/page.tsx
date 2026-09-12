@@ -6,6 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { BrainCircuit, Calculator, Puzzle, PiggyBank, Blocks, Trophy, Sparkles, CheckCircle2, RefreshCw, XCircle, Heart } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { Badge } from '@/components/ui/badge';
 
 // Simple custom confetti effect using Tailwind
 function ScoreConfetti() {

@@ -52,8 +52,8 @@ Start the conversation by introducing yourself and asking how you can help.`;
   const { output } = await ai.generate({
     model: 'googleai/gemini-2.5-flash',
     prompt: prompt,
-    history: input.history,
-  });
+    history: input.history as any,
+  } as any);
 
   return { response: output.text ?? "Desculpe, não consegui processar o seu pedido. Pode tentar novamente?" };
 }

@@ -8,7 +8,7 @@
 
 import { ai } from '@/ai/genkit';
 import { z } from 'zod';
-import { collectionGroup, query, where, getDocs, writeBatch, Timestamp, doc } from 'firebase/firestore';
+import { collection, collectionGroup, query, where, getDocs, writeBatch, Timestamp, doc } from 'firebase/firestore';
 import { getSdks } from '@/firebase';
 
 const ReminderOutputSchema = z.object({

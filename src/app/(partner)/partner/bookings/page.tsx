@@ -77,8 +77,8 @@ function WhatsAppMessageDialog({
     }
   };
 
-  const [activeTemplate, setActiveTemplate] = useState<keyof typeof templates.booking>('confirm');
-  const activeMessage = type === 'booking' ? templates.booking[activeTemplate] : templates.order[activeTemplate as keyof typeof templates.order];
+  const [activeTemplate, setActiveTemplate] = useState<'confirm' | 'reminder' | 'cancel' | 'shipped'>('confirm');
+  const activeMessage = type === 'booking' ? templates.booking[activeTemplate as keyof typeof templates.booking] : templates.order[activeTemplate as keyof typeof templates.order];
 
   const handleCopy = () => {
     navigator.clipboard.writeText(activeMessage);

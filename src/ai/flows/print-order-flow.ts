@@ -71,7 +71,7 @@ Start the conversation by greeting the user and asking what they would like to p
         return { media: part.media };
       }),
     })) as any,
-  });
+  } as any);
 
   return { response: output.text ?? "Desculpe, não consegui processar o seu pedido. Pode tentar novamente?" };
 }

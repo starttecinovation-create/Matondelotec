@@ -80,7 +80,7 @@ function UserGrowthChart({ users }: { users: UserProfile[] | null }) {
     )
 }
 
-type RecentActivityItem = { type: 'signup'; data: UserProfile; timestamp: Timestamp } | { type: 'order'; data: Order; timestamp: Timestamp } | { type: 'booking'; data: Booking; timestamp: Timestamp };
+type RecentActivityItem = { type: 'signup'; data: UserProfile; timestamp: any } | { type: 'order'; data: Order; timestamp: any } | { type: 'booking'; data: Booking; timestamp: any };
 
 function RecentActivityFeed() {
     const firestore = useFirestore();

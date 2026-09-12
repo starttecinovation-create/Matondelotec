@@ -26,7 +26,7 @@ export default function CheckoutPage() {
     const [paymentMethod, setPaymentMethod] = useState<'virtual_balance' | 'cash_on_delivery'>('virtual_balance');
     const [isProcessing, setIsProcessing] = useState(false);
 
-    const userProfileRef = useMemoFirebase(() => user ? doc(firestore, 'users', user.uid) : null, [firestore, user]);
+    const userProfileRef = useMemoFirebase(() => (user && firestore) ? doc(firestore, 'users', user.uid) : null, [firestore, user]);
     const { data: userProfile, isLoading: isProfileLoading } = useDoc<UserProfile>(userProfileRef);
 
     const canPayWithBalance = userProfile && userProfile.balance >= total;

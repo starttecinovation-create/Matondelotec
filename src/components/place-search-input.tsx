@@ -37,13 +37,7 @@ export function PlaceSearchInput({ onPlaceSelect }: { onPlaceSelect: (place: Pla
     const request: google.maps.places.AutocompleteRequest = {
       input: debouncedValue,
       sessionToken: sessionTokenRef.current,
-      locationRestriction: {
-        west: 13.15,
-        east: 13.35,
-        south: -8.95,
-        north: -8.75
-      },
-      includedRegionCodes: ['ao']
+      locationBias: LUANDA_BOUNDS,
     };
 
     AutocompleteSuggestion.fetchAutocompleteSuggestions(request)
@@ -62,10 +56,29 @@ export function PlaceSearchInput({ onPlaceSelect }: { onPlaceSelect: (place: Pla
     const place = suggestion.placePrediction.toPlace();
     sessionTokenRef.current = null; // Invalidate current session
 
-    onPlaceSelect({
-      place_id: place.id,
-      name: suggestion.placePrediction.text.text,
+    // Buscar todos os detalhes do local selecionado
+    place.fetchFields({
+      fields: ['displayName', 'formattedAddress', 'location', 'viewport', 'types']
+    }).then(() => {
+      onPlaceSelect({
+        place_id: place.id,
+        name: place.displayName || suggestion.placePrediction?.text.text || '',
+        formatted_address: place.formattedAddress || undefined,
+        geometry: place.location ? {
+          location: place.location,
+          viewport: place.viewport || null,
+        } : undefined,
+        types: place.types || undefined,
+      });
+    }).catch((err) => {
+      console.error("Erro ao obter detalhes do local selecionado:", err);
+      // Fallback básico caso ocorra um erro
+      onPlaceSelect({
+        place_id: place.id,
+        name: suggestion.placePrediction?.text.text || '',
+      });
     });
+
     setValue('');
     setSuggestions([]);
   };

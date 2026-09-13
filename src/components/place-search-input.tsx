@@ -4,7 +4,7 @@ import { useState, useRef, useEffect, useMemo } from 'react';
 import { useMapsLibrary } from '@vis.gl/react-google-maps';
 import type { PlaceResult } from '@/lib/types';
 import { Input } from '@/components/ui/input';
-import { Search, ChevronUp, ChevronDown, ChevronLeft, ChevronRight, X } from 'lucide-react';
+import { Search, ChevronUp, ChevronDown, ChevronLeft, ChevronRight, X, Mic, Camera, MapPin, Clock, ArrowUpRight, Sparkles, Compass } from 'lucide-react';
 import { useDebounce } from '@/hooks/use-debounce';
 
 const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
@@ -350,6 +350,8 @@ export function PlaceSearchInput({ onPlaceSelect }: { onPlaceSelect: (place: Pla
   const [googleSuggestions, setGoogleSuggestions] = useState<google.maps.places.AutocompleteSuggestion[]>([]);
   const [isFocused, setIsFocused] = useState(false);
   const [isQuotaExceeded, setIsQuotaExceeded] = useState(false);
+  const [activeSuggestionIndex, setActiveSuggestionIndex] = useState(-1);
+  const [activeFilter, setActiveFilter] = useState<'all' | 'places' | 'taxi' | 'services'>('all');
   
   const places = useMapsLibrary('places');
   const sessionTokenRef = useRef<google.maps.places.AutocompleteSessionToken | null>(null);
@@ -375,6 +377,11 @@ export function PlaceSearchInput({ onPlaceSelect }: { onPlaceSelect: (place: Pla
       setActiveLetter(firstChar);
     }
   }, [value]);
+
+  // Reseta o índice de sugestão selecionada quando o utilizador escreve ou muda de filtro
+  useEffect(() => {
+    setActiveSuggestionIndex(-1);
+  }, [value, activeFilter, activeLetter]);
 
   useEffect(() => {
     if (!places) {
@@ -470,6 +477,67 @@ export function PlaceSearchInput({ onPlaceSelect }: { onPlaceSelect: (place: Pla
     // Ordenação estritamente alfabética
     return combined.sort((a, b) => a.description.localeCompare(b.description));
   }, [value, activeLetter, googleSuggestions]);
+
+  // Filtra as sugestões baseado no filtro de categoria ativo (Tudo, Locais, Táxi, Serviços)
+  const filteredSuggestions = useMemo(() => {
+    if (activeFilter === 'all') return combinedSuggestions;
+
+    return combinedSuggestions.filter((suggestion) => {
+      const desc = suggestion.description.toLowerCase();
+      
+      if (activeFilter === 'places') {
+        // Lugares, aeroportos, bairros, vilas, avenidas ou marcas/locais puros
+        return suggestion.isCustom || 
+               desc.includes('aeroporto') || 
+               desc.includes('assembleia') || 
+               desc.includes('bairro') || 
+               desc.includes('avenida') || 
+               desc.includes('distrito') || 
+               desc.includes('ilha') || 
+               desc.includes('estádio') || 
+               desc.includes('parque') || 
+               desc.includes('palácio') || 
+               desc.includes('porto') || 
+               desc.includes('rio');
+      }
+
+      if (activeFilter === 'taxi') {
+        // Locais com táxi, trânsito, vias ou transporte
+        return desc.includes('táxi') || 
+               desc.includes('express') || 
+               desc.includes('viagem') || 
+               desc.includes('aeroporto') || 
+               desc.includes('terminal') || 
+               desc.includes('via') || 
+               desc.includes('trânsito') || 
+               desc.includes('bombeiros') || 
+               desc.includes('estrada');
+      }
+
+      if (activeFilter === 'services') {
+        // Bancos, clínicas, hospitais, hotéis, supermercados, universidades ou escolas
+        return desc.includes('banco') || 
+               desc.includes('clínica') || 
+               desc.includes('hospital') || 
+               desc.includes('hotel') || 
+               desc.includes('supermercado') || 
+               desc.includes('kero') || 
+               desc.includes('shopping') || 
+               desc.includes('biblioteca') || 
+               desc.includes('universidade') || 
+               desc.includes('escola') || 
+               desc.includes('instituto') || 
+               desc.includes('igreja') || 
+               desc.includes('ministério') || 
+               desc.includes('telecom') || 
+               desc.includes('alimenta') || 
+               desc.includes('lounge') || 
+               desc.includes('resort');
+      }
+
+      return true;
+    });
+  }, [combinedSuggestions, activeFilter]);
 
   const handleSuggestionClick = (suggestion: {
     id: string;
@@ -675,14 +743,46 @@ export function PlaceSearchInput({ onPlaceSelect }: { onPlaceSelect: (place: Pla
     }
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (!isFocused || filteredSuggestions.length === 0) return;
+
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setActiveSuggestionIndex((prev) => 
+        prev < filteredSuggestions.length - 1 ? prev + 1 : 0
+      );
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setActiveSuggestionIndex((prev) => 
+        prev > 0 ? prev - 1 : filteredSuggestions.length - 1
+      );
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      if (activeSuggestionIndex >= 0 && activeSuggestionIndex < filteredSuggestions.length) {
+        handleSuggestionClick(filteredSuggestions[activeSuggestionIndex]);
+      } else if (value.trim()) {
+        onPlaceSelect({
+          place_id: 'direct_search_' + encodeURIComponent(value.trim()),
+          name: value.trim(),
+          formatted_address: 'Pesquisa Global',
+        });
+        setValue('');
+        setIsFocused(false);
+      }
+    } else if (e.key === 'Escape') {
+      setIsFocused(false);
+    }
+  };
+
   return (
-    <div className="relative w-full max-w-md" id="place-search-container">
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-black" />
-        <Input
+    <div className="relative w-full max-w-lg" id="place-search-container">
+      {/* Container Principal da Barra de Pesquisa no estilo Google */}
+      <div className="relative flex items-center bg-white rounded-full border border-neutral-200 shadow-sm hover:shadow-md focus-within:shadow-md transition-all duration-200 pl-4 pr-3 h-12 focus-within:border-blue-400 focus-within:ring-2 focus-within:ring-blue-100">
+        <Search className="h-5 w-5 text-neutral-400 mr-3 shrink-0" />
+        <input
           type="text"
-          placeholder="Pesquise primeiro um local, serviço ou produto..."
-          className="pl-10 pr-10 placeholder:text-black/60 text-black w-full"
+          placeholder="Pesquise por qualquer local, serviço ou táxi..."
+          className="flex-1 bg-transparent border-none outline-none text-sm text-neutral-800 placeholder-neutral-400 font-sans w-full py-2.5"
           value={value}
           onChange={(e) => {
             setValue(e.target.value);
@@ -694,48 +794,103 @@ export function PlaceSearchInput({ onPlaceSelect }: { onPlaceSelect: (place: Pla
           onClick={() => {
             setIsFocused(true);
           }}
+          onKeyDown={handleKeyDown}
           id="place-search-input"
         />
-        {value && (
-          <button
-            onClick={() => {
-              setValue('');
-              setActiveLetter('A');
-              setGoogleSuggestions([]);
-              setIsFocused(true);
-              const inputEl = document.getElementById('place-search-input');
-              if (inputEl) {
-                inputEl.focus();
-              }
-            }}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-black/60 hover:text-black p-1 rounded-full hover:bg-black/5"
-            title="Limpar pesquisa"
-            id="btn-clear-search"
+        
+        {/* Ícones de Acessibilidade Estilo Google (Voz, Imagem, Limpar) */}
+        <div className="flex items-center gap-1 shrink-0 pl-2">
+          {value && (
+            <button
+              onClick={() => {
+                setValue('');
+                setActiveLetter('A');
+                setGoogleSuggestions([]);
+                setIsFocused(true);
+                const inputEl = document.getElementById('place-search-input');
+                if (inputEl) {
+                  inputEl.focus();
+                }
+              }}
+              className="p-1 rounded-full text-neutral-400 hover:bg-neutral-100 hover:text-neutral-600 transition"
+              title="Limpar pesquisa"
+              id="btn-clear-search"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          )}
+          <span className="h-5 w-px bg-neutral-200 mx-1.5" />
+          <button 
+            type="button" 
+            className="p-1.5 text-blue-500 hover:bg-neutral-50 rounded-full transition hover:scale-105 active:scale-95" 
+            title="Pesquisa por Voz (Google Voice)"
+            onClick={() => console.log("Pesquisa por voz em desenvolvimento")}
           >
-            <X className="h-4 w-4" />
+            <Mic className="h-4.5 w-4.5" />
           </button>
-        )}
+          <button 
+            type="button" 
+            className="p-1.5 text-red-500 hover:bg-neutral-50 rounded-full transition hover:scale-105 active:scale-95" 
+            title="Pesquisa por Imagem (Google Lens)"
+            onClick={() => console.log("Pesquisa por imagem em desenvolvimento")}
+          >
+            <Camera className="h-4.5 w-4.5" />
+          </button>
+        </div>
       </div>
 
-      {isFocused && combinedSuggestions.length > 0 && (
-        <div className="absolute top-full mt-1.5 w-full rounded-lg border border-white/20 bg-primary shadow-xl z-25 overflow-hidden flex flex-col max-h-[440px]" id="suggestions-dropdown-box">
+      {/* Caixa de Sugestões Flutuante (Estilo Menu Google) */}
+      {isFocused && (value.trim().length > 0 || combinedSuggestions.length > 0) && (
+        <div className="absolute top-full mt-2 w-full rounded-2xl border border-neutral-200 bg-white shadow-2xl z-25 overflow-hidden flex flex-col max-h-[480px]" id="suggestions-dropdown-box">
           
-          {/* Alphabet Strip - Alterna com as letras alfabéticas procuradas */}
-          <div className="flex items-center justify-between border-b border-white/25 p-2 bg-primary/95 sticky top-0 z-30 shadow-xs">
+          {/* Abas Rápidas de Categoria / Filtros Flexíveis */}
+          <div className="flex gap-1.5 p-3 border-b border-neutral-100 overflow-x-auto no-scrollbar bg-neutral-50/50">
+            {[
+              { id: 'all', label: 'Tudo', icon: Compass },
+              { id: 'places', label: 'Locais', icon: MapPin },
+              { id: 'taxi', label: 'Rotas de Táxi', icon: Sparkles },
+              { id: 'services', label: 'Serviços', icon: Compass }
+            ].map(filter => {
+              const Icon = filter.icon;
+              const isSelected = activeFilter === filter.id;
+              return (
+                <button
+                  key={filter.id}
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setActiveFilter(filter.id as any);
+                  }}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all border shrink-0 ${
+                    isSelected
+                      ? 'bg-blue-500 text-white border-blue-500 shadow-sm'
+                      : 'bg-white text-neutral-600 border-neutral-200 hover:bg-neutral-50'
+                  }`}
+                >
+                  <Icon className="h-3.5 w-3.5" />
+                  <span>{filter.label}</span>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Faixa Alfabética Superior no estilo Clássico Google */}
+          <div className="flex items-center justify-between border-b border-neutral-100 p-2 bg-neutral-50 sticky top-0 z-30 shadow-xs">
             <button
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
                 handlePrevLetter();
               }}
-              className="p-1.5 hover:bg-white/15 rounded-full text-white transition-all hover:scale-105 active:scale-95"
+              className="p-1.5 hover:bg-neutral-100 rounded-full text-neutral-500 transition-all hover:scale-105 active:scale-95"
               title="Letra Anterior"
               id="btn-letter-prev"
             >
               <ChevronLeft className="h-5 w-5" />
             </button>
             
-            <div className="flex-1 overflow-x-auto no-scrollbar flex gap-1.5 px-2 py-1 items-center scroll-smooth">
+            <div className="flex-1 overflow-x-auto no-scrollbar flex gap-1 px-1.5 py-0.5 items-center scroll-smooth">
               {ALPHABET.map((letter) => {
                 const isCurrent = activeLetter === letter;
                 return (
@@ -746,10 +901,10 @@ export function PlaceSearchInput({ onPlaceSelect }: { onPlaceSelect: (place: Pla
                       e.stopPropagation();
                       selectLetter(letter);
                     }}
-                    className={`min-w-8 h-8 rounded-full flex items-center justify-center text-xs font-black transition-all ${
+                    className={`min-w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
                       isCurrent 
-                        ? 'bg-white text-[#D45500] scale-110 shadow-lg border border-white/10' 
-                        : 'text-white hover:bg-white/20'
+                        ? 'bg-blue-500 text-white scale-105 shadow-sm' 
+                        : 'text-neutral-600 hover:bg-neutral-100'
                     }`}
                     id={`btn-letter-select-${letter}`}
                   >
@@ -765,7 +920,7 @@ export function PlaceSearchInput({ onPlaceSelect }: { onPlaceSelect: (place: Pla
                 e.stopPropagation();
                 handleNextLetter();
               }}
-              className="p-1.5 hover:bg-white/15 rounded-full text-white transition-all hover:scale-105 active:scale-95"
+              className="p-1.5 hover:bg-neutral-100 rounded-full text-neutral-500 transition-all hover:scale-105 active:scale-95"
               title="Próxima Letra"
               id="btn-letter-next"
             >
@@ -776,38 +931,65 @@ export function PlaceSearchInput({ onPlaceSelect }: { onPlaceSelect: (place: Pla
           {/* Seta de Scroll Superior */}
           <button
             onClick={handleScrollUp}
-            className="w-full py-2 flex justify-center items-center bg-white/5 hover:bg-white/15 text-white transition-all border-b border-white/15 focus:outline-none"
+            className="w-full py-1.5 flex justify-center items-center bg-neutral-50/50 hover:bg-neutral-100 text-neutral-400 hover:text-neutral-600 transition-all border-b border-neutral-100 focus:outline-none"
             title="Deslocar para cima (Cíclico)"
             id="btn-arrow-up"
           >
-            <ChevronUp className="h-5 w-5" />
+            <ChevronUp className="h-4 w-4" />
           </button>
 
           {/* Lista de Sugestões com Scroll */}
           <div 
             ref={scrollContainerRef}
-            className="overflow-y-auto max-h-64 scroll-smooth flex-1 scrollbar-thin scrollbar-thumb-white/20"
+            className="overflow-y-auto max-h-64 scroll-smooth flex-1 scrollbar-thin scrollbar-thumb-neutral-200 bg-white"
             id="suggestions-list-scrollable"
           >
-            {combinedSuggestions.map((suggestion) => (
-              <div
-                key={suggestion.id}
-                onClick={() => handleSuggestionClick(suggestion)}
-                className="p-3 cursor-pointer hover:bg-white/10 text-sm text-primary-foreground transition-all duration-150 border-b border-white/5 last:border-none flex items-center justify-between"
-                id={`suggestion-item-${suggestion.id}`}
-              >
-                <span className="font-semibold">{suggestion.description}</span>
-                {suggestion.isCustom && (
-                  <span className="text-[9px] bg-white/20 text-white font-extrabold px-2 py-0.5 rounded-full uppercase tracking-widest scale-90">
-                    Local
-                  </span>
-                )}
+            {filteredSuggestions.map((suggestion, index) => {
+              const isSelected = index === activeSuggestionIndex;
+              return (
+                <div
+                  key={suggestion.id}
+                  onClick={() => handleSuggestionClick(suggestion)}
+                  onMouseEnter={() => setActiveSuggestionIndex(index)}
+                  className={`p-3 cursor-pointer text-sm text-neutral-800 transition-all duration-150 border-b border-neutral-50 last:border-none flex items-center justify-between ${
+                    isSelected ? 'bg-neutral-50 border-l-4 border-blue-500 pl-2' : 'hover:bg-neutral-50/70'
+                  }`}
+                  id={`suggestion-item-${suggestion.id}`}
+                >
+                  <div className="flex items-center gap-2.5">
+                    {suggestion.isCustom ? (
+                      <MapPin className="h-4 w-4 text-blue-500 shrink-0" />
+                    ) : (
+                      <Compass className="h-4 w-4 text-neutral-400 shrink-0" />
+                    )}
+                    <span className={`${isSelected ? 'font-bold text-neutral-900' : 'font-medium text-neutral-700'}`}>{suggestion.description}</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 shrink-0 pl-2">
+                    {suggestion.isCustom && (
+                      <span className="text-[9px] bg-blue-50 text-blue-600 font-bold px-2 py-0.5 rounded-full uppercase tracking-wider scale-90 border border-blue-100">
+                        Local
+                      </span>
+                    )}
+                    <ArrowUpRight className={`h-4 w-4 text-neutral-400 transition-all ${isSelected ? 'opacity-100 translate-x-0.5 -translate-y-0.5 text-blue-500' : 'opacity-0'}`} />
+                  </div>
+                </div>
+              );
+            })}
+
+            {/* Estado Vazio de Pesquisa */}
+            {filteredSuggestions.length === 0 && (
+              <div className="p-8 text-center text-sm text-neutral-500 flex flex-col items-center justify-center gap-2 bg-white">
+                <Compass className="h-8 w-8 text-neutral-300 animate-pulse" />
+                <p className="font-semibold text-neutral-700">Nenhum resultado encontrado</p>
+                <p className="text-xs text-neutral-400 max-w-xs leading-relaxed">
+                  Tente outra letra no menu superior ou escreva para procurar qualquer destino ou serviço diretamente.
+                </p>
               </div>
-            ))}
+            )}
           </div>
 
           {isQuotaExceeded && (
-            <div className="p-2 bg-amber-600 text-[10px] text-white text-center font-bold tracking-wide border-t border-white/10 select-none uppercase" id="quota-warning-message">
+            <div className="p-2 bg-amber-500 text-[10px] text-white text-center font-bold tracking-wide border-t border-neutral-100 select-none uppercase" id="quota-warning-message">
               ⚠️ Modo offline: Limite diário de pesquisa do Google atingido
             </div>
           )}
@@ -815,11 +997,11 @@ export function PlaceSearchInput({ onPlaceSelect }: { onPlaceSelect: (place: Pla
           {/* Seta de Scroll Inferior */}
           <button
             onClick={handleScrollDown}
-            className="w-full py-2 flex justify-center items-center bg-white/5 hover:bg-white/15 text-white transition-all border-t border-white/15 focus:outline-none"
+            className="w-full py-1.5 flex justify-center items-center bg-neutral-50/50 hover:bg-neutral-100 text-neutral-400 hover:text-neutral-600 transition-all border-t border-neutral-100 focus:outline-none"
             title="Deslocar para baixo (Cíclico)"
             id="btn-arrow-down"
           >
-            <ChevronDown className="h-5 w-5" />
+            <ChevronDown className="h-4 w-4" />
           </button>
         </div>
       )}

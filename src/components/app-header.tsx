@@ -35,6 +35,7 @@ const navLinks = [
   { href: '/map', label: 'Tudo Aqui', icon: Search },
   { href: '/taxi', label: 'Táxi', icon: Car },
   { href: '/express', label: 'Deliver', icon: Truck },
+  { href: '/kids', label: 'Kids', icon: BrainCircuit },
 ];
 
 export function AppHeader() {

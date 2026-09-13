@@ -95,6 +95,12 @@
       "description": "Portrait of a smiling person.",
       "imageUrl": "https://images.unsplash.com/photo-1522529599102-193c0d76b5b6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8c21pbGluZyUyMHBlcnNvbnxlbnwwfHx8fDE3Njc2MzQ4Mzd8MA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "smiling person"
+    },
+    {
+      "id": "banner-kids",
+      "description": "A collection of colorful educational children blocks and toys",
+      "imageUrl": "https://images.unsplash.com/photo-1587654780291-39c9404d746b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
+      "imageHint": "educational children blocks"
     }
   ]
 }

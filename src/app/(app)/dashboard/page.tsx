@@ -6,7 +6,7 @@ import { serviceCategories } from '@/lib/types';
 import { categoryDetails, CategoryIcon } from '@/components/category-icon';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Search, Car, Loader2 } from 'lucide-react';
+import { ArrowRight, Search, Car, Loader2, BrainCircuit, Sparkles } from 'lucide-react';
 import { ServiceCard } from '@/components/service-card';
 import { useFirestore, useDoc, useMemoFirebase, useUser, useCollection } from '@/firebase';
 import { collection, collectionGroup, doc, query, limit, orderBy } from 'firebase/firestore';
@@ -65,6 +65,13 @@ function Banners() {
             description: 'Peça uma viagem e chegue ao seu destino com segurança e conforto. Toque para começar.',
             imageUrlId: 'banner-taxi',
             link: '/taxi'
+        },
+        {
+            id: 'kids',
+            title: 'Espaço Kanucos: Aprende a Jogar!',
+            description: 'Um espaço divertido com minijogos interactivos desenhados para treinar lógica, matemática e finanças dos nossos kanucos.',
+            imageUrlId: 'banner-kids',
+            link: '/kids'
         },
         {
             id: 'deliver',
@@ -211,6 +218,15 @@ export default function DashboardPage() {
                     <Card className="flex flex-col items-center justify-center p-4 h-full text-center hover:bg-accent hover:text-accent-foreground transition-colors group">
                         <Car className="h-8 w-8" style={{ stroke: 'url(#matondelo-gradient)' }} />
                         <p className="mt-2 text-sm font-semibold">Matondelo Táxi</p>
+                    </Card>
+                </Link>
+                 <Link href="/kids" key="kids">
+                    <Card className="flex flex-col items-center justify-center p-4 h-full text-center hover:bg-amber-50/50 hover:text-amber-950 border-amber-100/70 hover:border-amber-300/80 transition-all group relative overflow-hidden shadow-xs">
+                        <div className="absolute top-1 right-1">
+                            <Sparkles className="h-3 w-3 text-amber-500 animate-pulse" />
+                        </div>
+                        <BrainCircuit className="h-8 w-8 text-[#D45500] group-hover:scale-110 transition-transform" />
+                        <p className="mt-2 text-sm font-semibold text-slate-800">Espaço Kanucos</p>
                     </Card>
                 </Link>
               </div>

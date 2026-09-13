@@ -10,8 +10,9 @@ import { doc, writeBatch, serverTimestamp, getDoc, collection } from "firebase/f
 import type { UserProfile, Order, Transaction } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
-import { Loader2, Wallet, ShoppingCart, Truck } from "lucide-react";
+import { Loader2, Wallet, ShoppingCart, Truck, CreditCard, Lock } from "lucide-react";
 import Link from "next/link";
+import { StripePaymentForm } from "@/components/stripe-payment-form";
 import { useState } from "react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
@@ -23,7 +24,7 @@ export default function CheckoutPage() {
     const firestore = useFirestore();
     const { toast } = useToast();
     const router = useRouter();
-    const [paymentMethod, setPaymentMethod] = useState<'virtual_balance' | 'cash_on_delivery'>('virtual_balance');
+    const [paymentMethod, setPaymentMethod] = useState<'virtual_balance' | 'cash_on_delivery' | 'stripe'>('virtual_balance');
     const [isProcessing, setIsProcessing] = useState(false);
 
     const userProfileRef = useMemoFirebase(() => (user && firestore) ? doc(firestore, 'users', user.uid) : null, [firestore, user]);
@@ -126,6 +127,72 @@ export default function CheckoutPage() {
             });
     };
 
+    const handleStripeCheckoutSuccess = async (paymentId: string) => {
+        if (!user || !firestore || !userProfile || cart.length === 0) {
+            toast({ variant: 'destructive', title: 'Erro', description: 'Não é possível processar a encomenda.' });
+            return;
+        }
+
+        setIsProcessing(true);
+        try {
+            const batch = writeBatch(firestore);
+
+            // 1. Create Order
+            const newOrderRef = doc(collection(firestore, `users/${user.uid}/orders`));
+            const orderData: Omit<Order, 'id'> = {
+                userId: user.uid,
+                createdAt: serverTimestamp() as any,
+                items: cart,
+                totalAmount: total,
+                status: 'paid',
+                paymentMethod: 'stripe',
+            };
+            batch.set(newOrderRef, { ...orderData, id: newOrderRef.id, stripePaymentId: paymentId });
+
+            // 2. Group items by vendor and credit each vendor
+            const vendorTotals: { [vendorId: string]: number } = {};
+            cart.forEach(item => {
+                vendorTotals[item.vendorId] = (vendorTotals[item.vendorId] || 0) + (item.price * item.quantity);
+            });
+
+            for (const vendorId in vendorTotals) {
+                const vendorRef = doc(firestore, 'users', vendorId);
+                const vendorDoc = await getDoc(vendorRef);
+                if (vendorDoc.exists()) {
+                    const vendorProfile = vendorDoc.data() as UserProfile;
+                    const newVendorBalance = vendorProfile.balance + vendorTotals[vendorId];
+                    batch.update(vendorRef, { balance: newVendorBalance });
+                    
+                    // Create vendor transaction
+                    const vendorTransactionRef = doc(collection(firestore, `users/${vendorId}/transactions`));
+                    const vendorTransactionData: Omit<Transaction, 'id' | 'transactionDate'> = {
+                        userId: vendorId,
+                        amount: vendorTotals[vendorId],
+                        type: 'credit',
+                        description: `Recebimento da encomenda #${newOrderRef.id.substring(0, 6)} (via Cartão de Crédito)`,
+                    };
+                    batch.set(vendorTransactionRef, {...vendorTransactionData, id: vendorTransactionRef.id, transactionDate: serverTimestamp() });
+                }
+            }
+
+            // 3. Clear the cart in Firestore
+            for (const item of cart) {
+                const cartItemRef = doc(firestore, `users/${user.uid}/cart/${item.id}`);
+                batch.delete(cartItemRef);
+            }
+
+            await batch.commit();
+            clearCart();
+            toast({ title: 'Pagamento Confirmado!', description: 'A sua encomenda foi paga com sucesso via Cartão de Crédito.' });
+            router.push('/orders');
+        } catch (error) {
+            console.error('Stripe checkout error:', error);
+            toast({ variant: 'destructive', title: 'Erro de Finalização', description: 'O pagamento foi processado, mas ocorreu um erro ao registar a encomenda. Por favor, contacte o suporte.' });
+        } finally {
+            setIsProcessing(false);
+        }
+    };
+
 
     if (cart.length === 0) {
         return (
@@ -211,7 +278,8 @@ export default function CheckoutPage() {
                                     )}
                                 </div>
                            </Label>
-                            <Label htmlFor="cash_on_delivery" className="flex items-center gap-4 p-4 border rounded-lg has-[:checked]:border-primary cursor-pointer">
+                           
+                           <Label htmlFor="cash_on_delivery" className="flex items-center gap-4 p-4 border rounded-lg has-[:checked]:border-primary cursor-pointer">
                                 <RadioGroupItem value="cash_on_delivery" id="cash_on_delivery" />
                                  <div className="flex-grow">
                                     <div className="flex justify-between">
@@ -223,13 +291,44 @@ export default function CheckoutPage() {
                                     </p>
                                 </div>
                            </Label>
+
+                           <Label htmlFor="stripe" className="flex flex-col gap-4 p-4 border rounded-lg has-[:checked]:border-primary cursor-pointer">
+                                <div className="flex items-center gap-4 w-full">
+                                    <RadioGroupItem value="stripe" id="stripe" />
+                                    <div className="flex-grow">
+                                        <div className="flex justify-between">
+                                            <p className="font-semibold">Cartão de Crédito (Stripe)</p>
+                                            <CreditCard className="h-5 w-5 text-muted-foreground" />
+                                        </div>
+                                        <p className="text-xs text-muted-foreground mt-1">
+                                            Pague de forma segura com o seu cartão de crédito VISA, MasterCard ou American Express via Stripe.
+                                        </p>
+                                    </div>
+                                </div>
+                                {paymentMethod === 'stripe' && (
+                                    <div className="border-t pt-4 mt-2 w-full" onClick={(e) => e.stopPropagation()}>
+                                        <StripePaymentForm 
+                                            amount={total} 
+                                            onSuccess={handleStripeCheckoutSuccess}
+                                            isProcessingExternal={isProcessing}
+                                        />
+                                    </div>
+                                )}
+                           </Label>
                        </RadioGroup>
                     </CardContent>
                     <CardFooter>
-                         <Button size="lg" className="w-full" onClick={handleCheckout} disabled={isButtonDisabled}>
-                            {isProcessing ? <Loader2 className="animate-spin" /> : <Wallet className="mr-2 h-4 w-4"/>}
-                            {paymentMethod === 'virtual_balance' && !canPayWithBalance ? 'Saldo Insuficiente' : 'Confirmar Encomenda'}
-                        </Button>
+                         {paymentMethod !== 'stripe' ? (
+                             <Button size="lg" className="w-full" onClick={handleCheckout} disabled={isButtonDisabled}>
+                                 {isProcessing ? <Loader2 className="animate-spin" /> : <Wallet className="mr-2 h-4 w-4"/>}
+                                 {paymentMethod === 'virtual_balance' && !canPayWithBalance ? 'Saldo Insuficiente' : 'Confirmar Encomenda'}
+                             </Button>
+                         ) : (
+                             <div className="w-full text-center text-xs text-muted-foreground flex items-center justify-center gap-2 py-2">
+                                 <Lock className="h-4 w-4 text-[#FF7A00]" />
+                                 Pagamento processado de forma encriptada e segura através do Stripe.
+                             </div>
+                         )}
                     </CardFooter>
                 </Card>
             </div>

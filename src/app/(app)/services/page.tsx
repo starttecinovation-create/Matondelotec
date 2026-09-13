@@ -109,12 +109,12 @@ function ServicesPageContent() {
           </p>
         </div>
         
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+        <div className="relative max-w-2xl mx-auto w-full">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-[#FF7A00]" />
           <Input
             type="search"
             placeholder="Procurar por nome do serviço..."
-            className="pl-10 w-full"
+            className="pl-12 pr-4 py-6 w-full text-base border-2 border-[#FF7A00]/50 hover:border-[#FF7A00] focus-visible:border-[#FF7A00] focus-visible:ring-2 focus-visible:ring-[#FF7A00]/20 rounded-xl transition-all shadow-sm bg-white text-slate-800 placeholder:text-slate-400"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />

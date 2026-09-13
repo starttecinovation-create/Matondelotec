@@ -1,4 +1,4 @@
-import { Building2, Utensils, Stethoscope, Scissors, Paintbrush, Printer, FerrisWheel, type LucideProps, Combine, Layers, ShoppingCart, Hospital, Landmark, Wrench, Fuel, School, GraduationCap, HeartHandshake, Scale, Store, DollarSign, Shield, Brush, Globe, Phone, Wifi, Briefcase, Cake } from 'lucide-react';
+import { Building2, Utensils, Stethoscope, Scissors, Paintbrush, Printer, FerrisWheel, type LucideProps, Combine, Layers, ShoppingCart, Hospital, Landmark, Wrench, Fuel, School, GraduationCap, HeartHandshake, Scale, Store, DollarSign, Shield, Brush, Globe, Phone, Wifi, Briefcase, Cake, BrainCircuit } from 'lucide-react';
 import type { ServiceCategory } from '@/lib/types';
 
 export const categoryDetails: Record<ServiceCategory, { icon: React.ElementType<LucideProps>; label: string }> = {

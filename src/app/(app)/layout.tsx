@@ -1,12 +1,12 @@
 'use client';
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { AnnouncementBar } from "@/components/announcement-bar";
 import { AppHeader } from "@/components/app-header";
 import { AppFooter } from "@/components/app-footer";
 import { CartSheet } from "@/components/cart-sheet";
 import { Button } from "@/components/ui/button";
-import { MessageSquare, AlertTriangle, Loader2 } from "lucide-react";
+import { MessageSquare, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useUser } from "@/firebase";
 import { useRouter } from "next/navigation";
@@ -30,51 +30,8 @@ export default function AppLayout({
 }: {
   children: React.ReactNode
 }) {
-  const [showConfigModal, setShowConfigModal] = useState(false);
-  const [tempKey, setTempKey] = useState("");
-  const [isCustomKeyActive, setIsCustomKeyActive] = useState(false);
-
-  const rawApiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
-  const fallbackKey = "AIzaSyDCtuRXSEaG6UMacGdDTIK9aKhHUavXSCY";
-
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const saved = localStorage.getItem('CUSTOM_GOOGLE_MAPS_API_KEY');
-      if (saved) {
-        setTempKey(saved);
-        setIsCustomKeyActive(true);
-      }
-    }
-  }, []);
-
-  const apiKey = (typeof window !== "undefined" && localStorage.getItem('CUSTOM_GOOGLE_MAPS_API_KEY')) || rawApiKey;
-  const hasMapsKey = !!apiKey && apiKey !== "undefined" && apiKey !== "" && !apiKey.startsWith("YOUR_");
-
   const { user, isUserLoading } = useUser();
   const router = useRouter();
-
-  const handleSaveKey = () => {
-    if (typeof window !== "undefined") {
-      const cleaned = tempKey.trim();
-      if (cleaned === "") {
-        localStorage.removeItem('CUSTOM_GOOGLE_MAPS_API_KEY');
-      } else {
-        localStorage.setItem('CUSTOM_GOOGLE_MAPS_API_KEY', cleaned);
-      }
-      setShowConfigModal(false);
-      window.location.reload();
-    }
-  };
-
-  const handleClearKey = () => {
-    if (typeof window !== "undefined") {
-      localStorage.removeItem('CUSTOM_GOOGLE_MAPS_API_KEY');
-      setTempKey("");
-      setIsCustomKeyActive(false);
-      setShowConfigModal(false);
-      window.location.reload();
-    }
-  };
 
   useEffect(() => {
     if (typeof window !== "undefined") {

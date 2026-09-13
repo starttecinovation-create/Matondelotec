@@ -255,16 +255,48 @@ const INSTITUTIONS_DB: Record<string, string[]> = {
 export function PlaceSearchInput({ onPlaceSelect }: { onPlaceSelect: (place: PlaceResult | null) => void }) {
   const [value, setValue] = useState('');
   const debouncedValue = useDebounce(value, 300);
+  const [activeLetter, setActiveLetter] = useState('A');
   const [googleSuggestions, setGoogleSuggestions] = useState<google.maps.places.AutocompleteSuggestion[]>([]);
+  const [isFocused, setIsFocused] = useState(false);
   
   const places = useMapsLibrary('places');
   const sessionTokenRef = useRef<google.maps.places.AutocompleteSessionToken | null>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!places || !debouncedValue) {
+    const handleClickOutside = (event: MouseEvent) => {
+      const container = document.getElementById('place-search-container');
+      if (container && !container.contains(event.target as Node)) {
+        setIsFocused(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  // Sincroniza a letra ativa com o primeiro caractere digitado pelo utilizador
+  useEffect(() => {
+    const firstChar = value.trim().substring(0, 1).toUpperCase();
+    if (firstChar && ALPHABET.includes(firstChar)) {
+      setActiveLetter(firstChar);
+    }
+  }, [value]);
+
+  useEffect(() => {
+    if (!places) {
       setGoogleSuggestions([]);
       return;
+    }
+
+    // Só busca se estiver focado ou se houver valor
+    if (!isFocused && !debouncedValue) {
+      // Quando focado mas vazio, busca pela letra ativa 'activeLetter'
+      if (!isFocused) {
+        setGoogleSuggestions([]);
+        return;
+      }
     }
 
     const { AutocompleteSessionToken, AutocompleteSuggestion } = places;
@@ -273,9 +305,11 @@ export function PlaceSearchInput({ onPlaceSelect }: { onPlaceSelect: (place: Pla
       sessionTokenRef.current = new AutocompleteSessionToken();
     }
 
-    // Procura global sem restrições ou limitações de localização
+    // Pesquisa global usando a busca digitada ou a letra ativa caso esteja vazia
+    const searchTerm = debouncedValue.trim() || activeLetter;
+
     const request: google.maps.places.AutocompleteRequest = {
-      input: debouncedValue,
+      input: searchTerm,
       sessionToken: sessionTokenRef.current,
     };
 
@@ -287,19 +321,19 @@ export function PlaceSearchInput({ onPlaceSelect }: { onPlaceSelect: (place: Pla
         console.error("Erro ao carregar previsões de locais:", err);
         setGoogleSuggestions([]);
       });
-  }, [debouncedValue, places]);
+  }, [debouncedValue, activeLetter, isFocused, places]);
 
   // Combina as sugestões locais com as do Google por ordem alfabética
   const combinedSuggestions = useMemo(() => {
     const queryStr = value.trim().toLowerCase();
-    if (!queryStr) return [];
-
-    const firstChar = queryStr.charAt(0).toUpperCase();
-    const customMatches = INSTITUTIONS_DB[firstChar] || [];
+    
+    // Se a caixa de pesquisa estiver vazia, filtra pela letra ativa
+    const currentLetter = queryStr ? queryStr.charAt(0).toUpperCase() : activeLetter;
+    const customMatches = INSTITUTIONS_DB[currentLetter] || [];
 
     // Filtra as instituições customizadas
     const filteredCustom = customMatches
-      .filter((name) => name.toLowerCase().includes(queryStr))
+      .filter((name) => !queryStr || name.toLowerCase().includes(queryStr))
       .map((name) => ({
         id: `custom-${name}`,
         description: name,
@@ -338,9 +372,9 @@ export function PlaceSearchInput({ onPlaceSelect }: { onPlaceSelect: (place: Pla
       }
     }
 
-    // Ordenação estritamente alfabética para satisfazer "ordem alfabética"
+    // Ordenação estritamente alfabética
     return combined.sort((a, b) => a.description.localeCompare(b.description));
-  }, [value, googleSuggestions]);
+  }, [value, activeLetter, googleSuggestions]);
 
   const handleSuggestionClick = (suggestion: {
     id: string;
@@ -430,21 +464,22 @@ export function PlaceSearchInput({ onPlaceSelect }: { onPlaceSelect: (place: Pla
   };
 
   const selectLetter = (letter: string) => {
-    setValue(letter);
+    setActiveLetter(letter);
+    setValue('');
   };
 
   const handleNextLetter = () => {
-    const current = value.trim().substring(0, 1).toUpperCase() || 'A';
-    const index = ALPHABET.indexOf(current);
+    const index = ALPHABET.indexOf(activeLetter);
     const nextIndex = index === -1 ? 0 : (index + 1) % ALPHABET.length;
-    setValue(ALPHABET[nextIndex]);
+    setActiveLetter(ALPHABET[nextIndex]);
+    setValue('');
   };
 
   const handlePrevLetter = () => {
-    const current = value.trim().substring(0, 1).toUpperCase() || 'A';
-    const index = ALPHABET.indexOf(current);
+    const index = ALPHABET.indexOf(activeLetter);
     const prevIndex = index === -1 ? 25 : (index - 1 + ALPHABET.length) % ALPHABET.length;
-    setValue(ALPHABET[prevIndex]);
+    setActiveLetter(ALPHABET[prevIndex]);
+    setValue('');
   };
 
   const handleScrollUp = (e: React.MouseEvent) => {
@@ -495,14 +530,29 @@ export function PlaceSearchInput({ onPlaceSelect }: { onPlaceSelect: (place: Pla
           placeholder="Pesquise primeiro um local, serviço ou produto..."
           className="pl-10 pr-10 placeholder:text-black/60 text-black w-full"
           value={value}
-          onChange={(e) => setValue(e.target.value)}
+          onChange={(e) => {
+            setValue(e.target.value);
+            setIsFocused(true);
+          }}
+          onFocus={() => {
+            setIsFocused(true);
+          }}
+          onClick={() => {
+            setIsFocused(true);
+          }}
           id="place-search-input"
         />
         {value && (
           <button
             onClick={() => {
               setValue('');
+              setActiveLetter('A');
               setGoogleSuggestions([]);
+              setIsFocused(true);
+              const inputEl = document.getElementById('place-search-input');
+              if (inputEl) {
+                inputEl.focus();
+              }
             }}
             className="absolute right-3 top-1/2 -translate-y-1/2 text-black/60 hover:text-black p-1 rounded-full hover:bg-black/5"
             title="Limpar pesquisa"
@@ -513,7 +563,7 @@ export function PlaceSearchInput({ onPlaceSelect }: { onPlaceSelect: (place: Pla
         )}
       </div>
 
-      {combinedSuggestions.length > 0 && (
+      {isFocused && combinedSuggestions.length > 0 && (
         <div className="absolute top-full mt-1.5 w-full rounded-lg border border-white/20 bg-primary shadow-xl z-25 overflow-hidden flex flex-col max-h-[440px]" id="suggestions-dropdown-box">
           
           {/* Alphabet Strip - Alterna com as letras alfabéticas procuradas */}
@@ -533,7 +583,7 @@ export function PlaceSearchInput({ onPlaceSelect }: { onPlaceSelect: (place: Pla
             
             <div className="flex-1 overflow-x-auto no-scrollbar flex gap-1.5 px-2 py-1 items-center scroll-smooth">
               {ALPHABET.map((letter) => {
-                const isCurrent = value.trim().substring(0, 1).toUpperCase() === letter;
+                const isCurrent = activeLetter === letter;
                 return (
                   <button
                     key={letter}

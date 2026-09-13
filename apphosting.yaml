@@ -1,6 +1,6 @@
 runtime: nodejs20
 environmentVariables:
-  - variable: NEXT_PUBLIC_FIREBASE_API_KEY
-    value: ""
   - variable: NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
-    value: ""
+    secret: NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
+  - variable: NEXT_PUBLIC_GOOGLE_MAP_ID
+    secret: NEXT_PUBLIC_GOOGLE_MAP_ID

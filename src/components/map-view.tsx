@@ -45,7 +45,16 @@ const MapViewComponent = forwardRef<MapViewHandle, MapViewProps>(
       }
       // Check if it's a PlaceResult from Google
       if ('geometry' in item && item.geometry?.location) {
-          return item.geometry.location.toJSON();
+          const loc = item.geometry.location;
+          if (typeof loc.toJSON === 'function') {
+              return loc.toJSON();
+          }
+          if (typeof loc.lat === 'function' && typeof loc.lng === 'function') {
+              return { lat: loc.lat(), lng: loc.lng() };
+          }
+          if (typeof (loc as any).lat === 'number' && typeof (loc as any).lng === 'number') {
+              return loc as any;
+          }
       }
       // Fallback position to avoid crashes, with a small random offset
       return {

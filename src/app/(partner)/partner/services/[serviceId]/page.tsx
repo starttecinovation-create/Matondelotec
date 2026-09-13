@@ -302,7 +302,7 @@ export default function PartnerProductManagementPage({ params }: { params: Promi
                     {isServiceLoading ? (
                         <Skeleton className="h-10 w-2/3" />
                     ) : (
-                         <h1 className="font-headline text-3xl md:text-4xl font-bold">Gerir Catálogo de "{service?.name}"</h1>
+                         <h1 className="font-headline text-3xl md:text-4xl font-bold">Gerir Catálogo de &quot;{service?.name}&quot;</h1>
                     )}
                     <p className="text-muted-foreground mt-2">
                         Adicione e gira os produtos disponíveis neste serviço.

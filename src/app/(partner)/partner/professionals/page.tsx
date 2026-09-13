@@ -194,7 +194,7 @@ export default function ProfessionalsPage() {
                     </div>
                   ) : (
                     <p className="text-xs text-muted-foreground flex items-center gap-1">
-                      <AlertCircle className="w-4 h-4" /> Cadastre primeiro os seus serviços no separador "Serviços".
+                      <AlertCircle className="w-4 h-4" /> Cadastre primeiro os seus serviços no separador &quot;Serviços&quot;.
                     </p>
                   )}
                 </div>

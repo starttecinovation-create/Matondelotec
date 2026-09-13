@@ -112,7 +112,7 @@ function DonationDialog({ project, isOpen, onOpenChange }: { project: CharityPro
             <DialogContent className="max-w-md rounded-2xl">
                 <DialogHeader>
                     <DialogTitle className="font-headline font-bold text-lg">Apoiar Causa</DialogTitle>
-                    <DialogDescription className="text-xs">Apoie "{project.title}". Insira o valor da sua contribuição.</DialogDescription>
+                    <DialogDescription className="text-xs">Apoie &quot;{project.title}&quot;. Insira o valor da sua contribuição.</DialogDescription>
                 </DialogHeader>
                 <div className="space-y-4 py-4">
                     <div className="flex items-center justify-between p-3 border rounded-xl bg-slate-50">

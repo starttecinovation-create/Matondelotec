@@ -468,7 +468,7 @@ export default function PartnerProfilePage() {
                             <AlertDescription>
                                 De momento, as operações com Redotpay (USDT), Unitel Money, Afrimoney, Multicaixa Express, BAI Paga, Airtm, depósito bancário, ou dinheiro vivo são processadas manualmente pela nossa equipa.
                                 <br /><br />
-                                Para prosseguir, por favor, entre em contacto com o nosso suporte através do email <a href="mailto:pagamentos@matondelo.co.ao" className="font-semibold underline">pagamentos@matondelo.co.ao</a> com o assunto "Carregamento de Saldo" ou "Levantamento de Fundos" e receberá todas as instruções.
+                                Para prosseguir, por favor, entre em contacto com o nosso suporte através do email <a href="mailto:pagamentos@matondelo.co.ao" className="font-semibold underline">pagamentos@matondelo.co.ao</a> com o assunto &quot;Carregamento de Saldo&quot; ou &quot;Levantamento de Fundos&quot; e receberá todas as instruções.
                             </AlertDescription>
                         </Alert>
                     </CardContent>

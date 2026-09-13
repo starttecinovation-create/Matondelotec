@@ -138,6 +138,15 @@ service cloud.firestore {
       match /subscriptions/{subscriptionId} {
         allow read, write: if isOwner(userId);
       }
+
+      match /professionals/{professionalId} {
+        allow read: if true;
+        allow write: if isOwner(userId);
+      }
+
+      match /crmLogs/{logId} {
+        allow read, write: if isOwner(userId);
+      }
       
       // -----------------------------------------------------------------------
       // Vendor Services & Products

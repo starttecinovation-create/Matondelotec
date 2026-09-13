@@ -17,38 +17,55 @@ const LUANDA_BOUNDS = {
 export function PlaceSearchInput({ onPlaceSelect }: { onPlaceSelect: (place: PlaceResult | null) => void }) {
   const [value, setValue] = useState('');
   const debouncedValue = useDebounce(value, 300);
-  const [suggestions, setSuggestions] = useState<google.maps.places.AutocompletePrediction[]>([]);
+  const [suggestions, setSuggestions] = useState<google.maps.places.AutocompleteSuggestion[]>([]);
   
   const places = useMapsLibrary('places');
-  const service = useRef<google.maps.places.AutocompleteService | null>(null);
+  const sessionTokenRef = useRef<google.maps.places.AutocompleteSessionToken | null>(null);
 
   useEffect(() => {
-    if (!places) return;
-    service.current = new places.AutocompleteService();
-  }, [places]);
-
-  useEffect(() => {
-    if (service.current && debouncedValue) {
-      service.current.getPlacePredictions({
-        input: debouncedValue,
-        bounds: LUANDA_BOUNDS,
-        componentRestrictions: { country: 'ao' },
-      }, (predictions, status) => {
-        if (status === google.maps.places.PlacesServiceStatus.OK && predictions) {
-          setSuggestions(predictions);
-        } else {
-          setSuggestions([]);
-        }
-      });
-    } else {
+    if (!places || !debouncedValue) {
       setSuggestions([]);
+      return;
     }
-  }, [debouncedValue]);
 
-  const handleSuggestionClick = (placeId: string) => {
-    // No need to get details here, we can do it on the target page
-    // to avoid needing a map instance everywhere.
-    onPlaceSelect({ place_id: placeId, name: '' });
+    const { AutocompleteSessionToken, AutocompleteSuggestion } = places;
+
+    if (!sessionTokenRef.current) {
+      sessionTokenRef.current = new AutocompleteSessionToken();
+    }
+
+    const request: google.maps.places.AutocompleteRequest = {
+      input: debouncedValue,
+      sessionToken: sessionTokenRef.current,
+      locationRestriction: {
+        west: 13.15,
+        east: 13.35,
+        south: -8.95,
+        north: -8.75
+      },
+      includedRegionCodes: ['ao']
+    };
+
+    AutocompleteSuggestion.fetchAutocompleteSuggestions(request)
+      .then((res) => {
+        setSuggestions(res.suggestions || []);
+      })
+      .catch((err) => {
+        console.error("Erro ao carregar previsões de locais:", err);
+        setSuggestions([]);
+      });
+  }, [debouncedValue, places]);
+
+  const handleSuggestionClick = (suggestion: google.maps.places.AutocompleteSuggestion) => {
+    if (!places || !suggestion.placePrediction) return;
+
+    const place = suggestion.placePrediction.toPlace();
+    sessionTokenRef.current = null; // Invalidate current session
+
+    onPlaceSelect({
+      place_id: place.id,
+      name: suggestion.placePrediction.text.text,
+    });
     setValue('');
     setSuggestions([]);
   };
@@ -65,15 +82,20 @@ export function PlaceSearchInput({ onPlaceSelect }: { onPlaceSelect: (place: Pla
       />
       {suggestions.length > 0 && (
         <div className="absolute top-full mt-1 w-full rounded-md border bg-primary shadow-lg z-10">
-          {suggestions.map(({ place_id, description }) => (
-            <div
-              key={place_id}
-              onClick={() => handleSuggestionClick(place_id)}
-              className="p-3 cursor-pointer hover:bg-primary/90 text-sm text-primary-foreground"
-            >
-              {description}
-            </div>
-          ))}
+          {suggestions.map((suggestion) => {
+            const id = suggestion.placePrediction?.placeId;
+            const description = suggestion.placePrediction?.text.text;
+            if (!id || !description) return null;
+            return (
+              <div
+                key={id}
+                onClick={() => handleSuggestionClick(suggestion)}
+                className="p-3 cursor-pointer hover:bg-primary/90 text-sm text-primary-foreground"
+              >
+                {description}
+              </div>
+            );
+          })}
         </div>
       )}
     </div>

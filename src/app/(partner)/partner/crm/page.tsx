@@ -1304,7 +1304,7 @@ export default function CRMPage() {
                       <UserCheck className="w-10 h-10 text-muted-foreground mx-auto mb-2" />
                       <h4 className="font-bold text-slate-800">Nenhum atendimento registado no CRM</h4>
                       <p className="text-xs text-muted-foreground mt-1 max-w-sm mx-auto">
-                        Quando concluir atendimentos agendados na aba "Reservas", as notas e o histórico de faturamento dos seus clientes serão registados aqui automaticamente.
+                        Quando concluir atendimentos agendados na aba &quot;Reservas&quot;, as notas e o histórico de faturamento dos seus clientes serão registados aqui automaticamente.
                       </p>
                     </div>
                   )}

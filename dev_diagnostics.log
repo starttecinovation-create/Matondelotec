@@ -1,0 +1,9 @@
+   ▲ Next.js 15.5.9
+   - Local:        http://localhost:3005
+   - Network:      http://169.254.8.1:3005
+
+ ✓ Starting...
+ ✓ Ready in 2.9s
+ ○ Compiling /_not-found ...
+ ✓ Compiled /_not-found in 5.7s (562 modules)
+ HEAD / 404 in 6329ms

@@ -123,7 +123,7 @@ export default function ContentManagementPage() {
                     <form onSubmit={form.handleSubmit(onSubmit)}>
                         <Card>
                              <CardHeader>
-                                <CardTitle>Editar Página "Sobre"</CardTitle>
+                                <CardTitle>Editar Página &quot;Sobre&quot;</CardTitle>
                              </CardHeader>
                              <CardContent className="pt-6 space-y-6">
                                  {isLoading ? (

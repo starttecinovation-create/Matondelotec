@@ -94,14 +94,23 @@ function MapPageContent() {
 
     const placeId = searchParams.get('placeId');
     if (placeId) {
-      const placesService = new places.PlacesService(map);
-      placesService.getDetails({
-        placeId,
-        fields: ['place_id', 'name', 'geometry', 'formatted_address', 'types']
-      }, (place, status) => {
-        if (status === google.maps.places.PlacesServiceStatus.OK && place) {
-          handlePlaceSelect(place as PlaceResult);
-        }
+      const place = new places.Place({ id: placeId });
+      place.fetchFields({
+        fields: ['displayName', 'formattedAddress', 'location', 'viewport', 'types']
+      }).then(() => {
+        const placeResult: PlaceResult = {
+          place_id: place.id,
+          name: place.displayName || '',
+          formatted_address: place.formattedAddress || undefined,
+          geometry: place.location ? {
+            location: place.location,
+            viewport: place.viewport || null,
+          } : undefined,
+          types: place.types || undefined,
+        };
+        handlePlaceSelect(placeResult);
+      }).catch((err) => {
+        console.error("Erro ao obter detalhes do local:", err);
       });
     }
   }, [searchParams, places, map]);
@@ -131,7 +140,18 @@ function MapPageContent() {
     setSearchedPlace(place);
     setSelectedServiceId(null);
     if (place?.geometry?.location && mapRef.current) {
-        mapRef.current.panTo(place.geometry.location.toJSON());
+        const loc = place.geometry.location;
+        let pos: google.maps.LatLngLiteral;
+        if (typeof loc.toJSON === 'function') {
+            pos = loc.toJSON();
+        } else if (typeof loc.lat === 'function' && typeof loc.lng === 'function') {
+            pos = { lat: loc.lat(), lng: loc.lng() };
+        } else if (typeof (loc as any).lat === 'number' && typeof (loc as any).lng === 'number') {
+            pos = loc as any;
+        } else {
+            pos = { lat: -8.8368, lng: 13.2343 };
+        }
+        mapRef.current.panTo(pos);
     }
   }
 

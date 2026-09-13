@@ -141,7 +141,7 @@ export default function PartnerServiceEditPage({ params }: { params: Promise<{ s
                         <>
                             <h1 className="font-headline text-3xl md:text-4xl font-bold">Editar Serviço</h1>
                             <p className="text-muted-foreground mt-2">
-                                Modifique as informações de "{service?.name}".
+                                Modifique as informações de &quot;{service?.name}&quot;.
                             </p>
                         </>
                     )}

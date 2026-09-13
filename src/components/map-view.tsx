@@ -82,6 +82,7 @@ const MapViewComponent = forwardRef<MapViewHandle, MapViewProps>(
           gestureHandling={'greedy'}
           disableDefaultUI={true}
           className='w-full h-full'
+          internalUsageAttributionIds={["gmp_mcp_codeassist_v1_aistudio"]}
         >
           {/* Markers for services from our database */}
           {services.map((service) => (

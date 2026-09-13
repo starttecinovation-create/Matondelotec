@@ -16,6 +16,7 @@ export type Announcement = {
 export type ServiceCategory = 
   | 'Hotel' 
   | 'Restaurante' 
+  | 'Imóveis'
   | 'Clínica' 
   | 'Barbearia' 
   | 'Salão de Beleza' 
@@ -271,6 +272,7 @@ export interface PlaceResult {
 export const serviceCategories: ServiceCategory[] = [
     'Hotel', 
     'Restaurante',
+    'Imóveis',
     'Pizzarias',
     'Humburguerias',
     'Clínica', 

@@ -26,7 +26,17 @@ export type InsightRequestFilter = {
  * Usa fetch nativo para compatibilidade total com Next.js 15 e Node 20+.
  */
 export async function computeAreaInsights(filter: InsightRequestFilter) {
-    const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+    const rawApiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+    const fallbackKey = "AIzaSyDCtuRXSEaG6UMacGdDTIK9aKhHUavXSCY";
+    let apiKey = (!rawApiKey || rawApiKey === "undefined" || rawApiKey === "" || rawApiKey.startsWith("YOUR_")) ? fallbackKey : rawApiKey;
+    
+    if (typeof window !== "undefined") {
+        const saved = localStorage.getItem('CUSTOM_GOOGLE_MAPS_API_KEY');
+        if (saved) {
+            apiKey = saved;
+        }
+    }
+
     if (!apiKey) {
         throw new Error("Google Maps API key is not configured.");
     }

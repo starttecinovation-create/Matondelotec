@@ -37,7 +37,9 @@ const placePhotoFlow = ai.defineFlow(
     outputSchema: PlacePhotoOutputSchema,
   },
   async ({ textQuery }) => {
-    const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+    const rawApiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+    const fallbackKey = "AIzaSyDCtuRXSEaG6UMacGdDTIK9aKhHUavXSCY";
+    const apiKey = (!rawApiKey || rawApiKey === "undefined" || rawApiKey === "" || rawApiKey.startsWith("YOUR_")) ? fallbackKey : rawApiKey;
     if (!apiKey) {
       console.error("Google Maps API key is not configured.");
       return { photoUrl: null, attribution: null };

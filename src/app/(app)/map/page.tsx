@@ -84,6 +84,47 @@ function MapPageContent() {
     : (services || []);
   }, [services, selectedCategory]);
 
+  // Global handler to catch and prevent next.js dev error screen for quota exceed errors
+  useEffect(() => {
+    const isGoogleMapsQuotaError = (message: string) => {
+      return (
+        message.includes('Quota exceeded') ||
+        message.includes('AutocompletePlacesRequest') ||
+        message.includes('places.googleapis.com') ||
+        message.includes('limit') ||
+        message.includes('OVER_QUERY_LIMIT')
+      );
+    };
+
+    const handleGlobalRejection = (event: PromiseRejectionEvent) => {
+      const reason = event.reason;
+      const message = reason?.message || String(reason || '');
+      if (isGoogleMapsQuotaError(message)) {
+        event.preventDefault();
+        event.stopPropagation();
+        event.stopImmediatePropagation();
+        console.warn("[Matondelo] Suppressed uncaught Google Maps quota rejection:", message);
+      }
+    };
+
+    const handleGlobalError = (event: ErrorEvent) => {
+      const message = event.message || '';
+      if (isGoogleMapsQuotaError(message)) {
+        event.preventDefault();
+        event.stopPropagation();
+        event.stopImmediatePropagation();
+        console.warn("[Matondelo] Suppressed uncaught Google Maps quota error:", message);
+      }
+    };
+
+    window.addEventListener('unhandledrejection', handleGlobalRejection, true);
+    window.addEventListener('error', handleGlobalError, true);
+
+    return () => {
+      window.removeEventListener('unhandledrejection', handleGlobalRejection, true);
+      window.removeEventListener('error', handleGlobalError, true);
+    };
+  }, []);
 
   // Effect to handle incoming search from dashboard
   const map = useMap();

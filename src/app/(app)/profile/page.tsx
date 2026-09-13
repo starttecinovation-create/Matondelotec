@@ -170,7 +170,30 @@ export default function ProfilePage() {
                             }
                         </div>
                     </div>
-                     <p className="text-sm text-muted-foreground mt-4">Para carregar o seu saldo, por favor, registe-se como parceiro ou contacte o suporte.</p>
+                     <div className="mt-4 p-4 border rounded-lg bg-muted/50 space-y-3">
+                         <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Carregamento Rápido via Multicaixa Express</p>
+                         <p className="text-sm text-muted-foreground">
+                             Pode carregar o seu saldo virtual enviando um comprovativo de transferência ou pagamento de serviço realizado no Multicaixa Express para o nosso suporte.
+                         </p>
+                         <div className="flex flex-wrap gap-2 pt-1">
+                             <Button size="sm" variant="outline" className="text-xs py-1 h-8" asChild>
+                                 <a href="https://play.google.com/store/apps/details?id=ao.co.emis.mexpress" target="_blank" rel="noopener noreferrer">
+                                     Google Play
+                                 </a>
+                             </Button>
+                             <Button size="sm" variant="outline" className="text-xs py-1 h-8" asChild>
+                                 <a href="https://apps.apple.com/ao/app/multicaixa-express/id1453457199" target="_blank" rel="noopener noreferrer">
+                                     App Store
+                                 </a>
+                             </Button>
+                             <Button size="sm" variant="outline" className="text-xs py-1 h-8" asChild>
+                                 <a href="https://www.emis.co.ao/servicos/multicaixa/multicaixa-express/" target="_blank" rel="noopener noreferrer">
+                                     Site Oficial
+                                 </a>
+                             </Button>
+                         </div>
+                         <p className="text-xs text-muted-foreground">Para carregar o seu saldo, por favor, registe-se como parceiro ou contacte o suporte.</p>
+                     </div>
                 </CardContent>
             </Card>
             <Card>

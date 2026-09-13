@@ -252,12 +252,104 @@ const INSTITUTIONS_DB: Record<string, string[]> = {
   ]
 };
 
+const LOCAL_COORDINATES: Record<string, { lat: number; lng: number }> = {
+  // Letra A
+  "Aeroporto Internacional Luanda Quatro de Fevereiro": { lat: -8.8583, lng: 13.2311 },
+  "Assembleia Nacional de Angola": { lat: -8.8164, lng: 13.2381 },
+  "Administração Geral Tributária (AGT)": { lat: -8.8153, lng: 13.2241 },
+  "Angola Telecom": { lat: -8.8142, lng: 13.2285 },
+  "Alvalade, Luanda": { lat: -8.8344, lng: 13.2392 },
+  "Avenida Brasil, Luanda": { lat: -8.8267, lng: 13.2435 },
+  "Avó Kumbi, Luanda": { lat: -8.8789, lng: 13.2212 },
+  "Administração Municipal de Luanda": { lat: -8.8122, lng: 13.2225 },
+  
+  // Letra B
+  "Banco de Poupança e Crédito (BPC)": { lat: -8.8139, lng: 13.2208 },
+  "Banco de Fomento Angola (BFA)": { lat: -8.8258, lng: 13.2217 },
+  "Banco BIC": { lat: -8.8181, lng: 13.2267 },
+  "Banco Sol": { lat: -8.8228, lng: 13.2294 },
+  "Banco Nacional de Angola (BNA)": { lat: -8.8106, lng: 13.2231 },
+  "Biblioteca Nacional de Angola": { lat: -8.8192, lng: 13.2250 },
+  "Baía de Luanda": { lat: -8.8078, lng: 13.2244 },
+  "Bairro Operário, Luanda": { lat: -8.8122, lng: 13.2422 },
+  "Bairro Popular, Luanda": { lat: -8.8314, lng: 13.2461 },
+  "Benfica, Luanda": { lat: -8.9281, lng: 13.1611 },
+
+  // Letra C
+  "Clinica Sagrada Esperança": { lat: -8.8275, lng: 13.2497 },
+  "Clinica Girassol": { lat: -8.8217, lng: 13.2308 },
+  "Cidadela Desportiva": { lat: -8.8194, lng: 13.2503 },
+  "Centro Cultural Português": { lat: -8.8161, lng: 13.2319 },
+  "Cazenga, Luanda": { lat: -8.8189, lng: 13.2844 },
+  "Catedral de Luanda": { lat: -8.8117, lng: 13.2233 },
+  "Camama, Luanda": { lat: -8.8953, lng: 13.2411 },
+
+  // Letra D
+  "Direcção Nacional de Viação e Trânsito (DNVT)": { lat: -8.8239, lng: 13.2683 },
+  "Distrito Urbano da Maianga": { lat: -8.8306, lng: 13.2294 },
+  "Distrito Urbano do Rangel": { lat: -8.8186, lng: 13.2514 },
+  "Distrito Urbano do Sambizanga": { lat: -8.7958, lng: 13.2411 },
+
+  // Letra E
+  "ENDE - Empresa Nacional de Distribuição de Electricidade": { lat: -8.8131, lng: 13.2306 },
+  "EPAL - Empresa Pública de Águas de Luanda": { lat: -8.8164, lng: 13.2258 },
+  "Estádio 11 de Novembro": { lat: -8.9911, lng: 13.2814 },
+  "Estádio dos Coqueiros": { lat: -8.8156, lng: 13.2219 },
+
+  // Letra F
+  "Fortaleza de São Miguel": { lat: -8.8067, lng: 13.2239 },
+  "Futungo de Belas": { lat: -8.9167, lng: 13.1783 },
+
+  // Letra H
+  "Hospital Josina Machel": { lat: -8.8242, lng: 13.2244 },
+  "Hospital Américo Boavida": { lat: -8.8189, lng: 13.2536 },
+  "Hospital Geral de Luanda": { lat: -8.8911, lng: 13.2511 },
+  "Hotel Epic Sana Luanda": { lat: -8.8175, lng: 13.2325 },
+
+  // Letra I
+  "Ilha do Cabo, Luanda": { lat: -8.7844, lng: 13.2458 },
+
+  // Letra K
+  "Kero Nova Vida": { lat: -8.8953, lng: 13.2564 },
+  "Kero Kilamba": { lat: -8.9958, lng: 13.2561 },
+  "Kero Talatona": { lat: -8.9222, lng: 13.1814 },
+
+  // Letra L
+  "Lar do Patriota": { lat: -8.9103, lng: 13.2081 },
+  "Luanda Shopping": { lat: -8.8214, lng: 13.2356 },
+  "Lubango, Angola": { lat: -14.9172, lng: 13.4925 },
+  "Lobito, Angola": { lat: -12.3508, lng: 13.5350 },
+
+  // Letra M
+  "Matondelo Express": { lat: -8.8368, lng: 13.2343 },
+  "Matondelo Kids": { lat: -8.8368, lng: 13.2343 },
+  "Matondelo Táxi": { lat: -8.8368, lng: 13.2343 },
+  "Matondelo Deliver": { lat: -8.8368, lng: 13.2343 },
+  "Maianga, Luanda": { lat: -8.8306, lng: 13.2294 },
+  "Miramar, Luanda": { lat: -8.8064, lng: 13.2425 },
+
+  // Letra N
+  "Nova Vida, Luanda": { lat: -8.8894, lng: 13.2514 },
+
+  // Letra T
+  "Talatona, Luanda": { lat: -8.9201, lng: 13.1788 },
+
+  // Letra Z
+  "Zango 1, Luanda": { lat: -8.9953, lng: 13.4097 },
+  "Zango 2, Luanda": { lat: -8.9953, lng: 13.4097 },
+  "Zango 3, Luanda": { lat: -8.9953, lng: 13.4097 },
+  "Zango 4, Luanda": { lat: -8.9953, lng: 13.4097 },
+  "Zango 5, Luanda": { lat: -8.9953, lng: 13.4097 },
+  "Zango, Luanda": { lat: -8.9953, lng: 13.4097 }
+};
+
 export function PlaceSearchInput({ onPlaceSelect }: { onPlaceSelect: (place: PlaceResult | null) => void }) {
   const [value, setValue] = useState('');
   const debouncedValue = useDebounce(value, 300);
   const [activeLetter, setActiveLetter] = useState('A');
   const [googleSuggestions, setGoogleSuggestions] = useState<google.maps.places.AutocompleteSuggestion[]>([]);
   const [isFocused, setIsFocused] = useState(false);
+  const [isQuotaExceeded, setIsQuotaExceeded] = useState(false);
   
   const places = useMapsLibrary('places');
   const sessionTokenRef = useRef<google.maps.places.AutocompleteSessionToken | null>(null);
@@ -290,13 +382,15 @@ export function PlaceSearchInput({ onPlaceSelect }: { onPlaceSelect: (place: Pla
       return;
     }
 
-    // Só busca se estiver focado ou se houver valor
-    if (!isFocused && !debouncedValue) {
-      // Quando focado mas vazio, busca pela letra ativa 'activeLetter'
-      if (!isFocused) {
-        setGoogleSuggestions([]);
-        return;
-      }
+    if (isQuotaExceeded) {
+      setGoogleSuggestions([]);
+      return;
+    }
+
+    const searchTerm = debouncedValue.trim();
+    if (searchTerm.length < 3) {
+      setGoogleSuggestions([]);
+      return;
     }
 
     const { AutocompleteSessionToken, AutocompleteSuggestion } = places;
@@ -304,9 +398,6 @@ export function PlaceSearchInput({ onPlaceSelect }: { onPlaceSelect: (place: Pla
     if (!sessionTokenRef.current) {
       sessionTokenRef.current = new AutocompleteSessionToken();
     }
-
-    // Pesquisa global usando a busca digitada ou a letra ativa caso esteja vazia
-    const searchTerm = debouncedValue.trim() || activeLetter;
 
     const request: google.maps.places.AutocompleteRequest = {
       input: searchTerm,
@@ -319,9 +410,13 @@ export function PlaceSearchInput({ onPlaceSelect }: { onPlaceSelect: (place: Pla
       })
       .catch((err) => {
         console.error("Erro ao carregar previsões de locais:", err);
+        const errStr = String(err?.message || err);
+        if (errStr.includes("Quota exceeded") || errStr.includes("limit") || errStr.includes("OVER_QUERY_LIMIT")) {
+          setIsQuotaExceeded(true);
+        }
         setGoogleSuggestions([]);
       });
-  }, [debouncedValue, activeLetter, isFocused, places]);
+  }, [debouncedValue, isFocused, places, isQuotaExceeded]);
 
   // Combina as sugestões locais com as do Google por ordem alfabética
   const combinedSuggestions = useMemo(() => {
@@ -385,6 +480,47 @@ export function PlaceSearchInput({ onPlaceSelect }: { onPlaceSelect: (place: Pla
     if (!places) return;
 
     if (suggestion.isCustom) {
+      // 1. Verifica se temos as coordenadas locais guardadas de forma estática
+      const localCoords = LOCAL_COORDINATES[suggestion.description];
+      if (localCoords) {
+        onPlaceSelect({
+          place_id: 'local_' + suggestion.description.replace(/\s+/g, '_'),
+          name: suggestion.description,
+          formatted_address: 'Luanda, Angola',
+          geometry: {
+            location: {
+              lat: () => localCoords.lat,
+              lng: () => localCoords.lng,
+              toJSON: () => localCoords,
+            } as unknown as google.maps.LatLng,
+            viewport: null,
+          }
+        });
+        setValue('');
+        setGoogleSuggestions([]);
+        return;
+      }
+
+      // 2. Se a quota estiver excedida, usa o centro de Luanda por defeito diretamente sem chamar a API
+      if (isQuotaExceeded) {
+        onPlaceSelect({
+          place_id: 'custom_' + suggestion.description,
+          name: suggestion.description,
+          formatted_address: 'Luanda, Angola',
+          geometry: {
+            location: {
+              lat: () => -8.8368,
+              lng: () => 13.2343,
+              toJSON: () => ({ lat: -8.8368, lng: 13.2343 }),
+            } as unknown as google.maps.LatLng,
+            viewport: null,
+          }
+        });
+        setValue('');
+        setGoogleSuggestions([]);
+        return;
+      }
+
       // Resolve as coordenadas e detalhes buscando no Google
       const { AutocompleteSuggestion } = places;
       AutocompleteSuggestion.fetchAutocompleteSuggestions({
@@ -427,9 +563,23 @@ export function PlaceSearchInput({ onPlaceSelect }: { onPlaceSelect: (place: Pla
         })
         .catch((err) => {
           console.error("Erro ao buscar local customizado no Google:", err);
+          const errStr = String(err?.message || err);
+          if (errStr.includes("Quota exceeded") || errStr.includes("limit") || errStr.includes("OVER_QUERY_LIMIT")) {
+            setIsQuotaExceeded(true);
+          }
+          // Usa coordenadas do centro de Luanda por defeito no fallback de erro
           onPlaceSelect({
             place_id: 'custom_' + suggestion.description,
             name: suggestion.description,
+            formatted_address: 'Luanda, Angola',
+            geometry: {
+              location: {
+                lat: () => -8.8368,
+                lng: () => 13.2343,
+                toJSON: () => ({ lat: -8.8368, lng: 13.2343 }),
+              } as unknown as google.maps.LatLng,
+              viewport: null,
+            }
           });
         });
     } else if (suggestion.googleSuggestion?.placePrediction) {
@@ -452,6 +602,10 @@ export function PlaceSearchInput({ onPlaceSelect }: { onPlaceSelect: (place: Pla
         });
       }).catch((err) => {
         console.error("Erro ao obter detalhes do local selecionado:", err);
+        const errStr = String(err?.message || err);
+        if (errStr.includes("Quota exceeded") || errStr.includes("limit") || errStr.includes("OVER_QUERY_LIMIT")) {
+          setIsQuotaExceeded(true);
+        }
         onPlaceSelect({
           place_id: place.id,
           name: googleSug.placePrediction?.text.text || '',
@@ -651,6 +805,12 @@ export function PlaceSearchInput({ onPlaceSelect }: { onPlaceSelect: (place: Pla
               </div>
             ))}
           </div>
+
+          {isQuotaExceeded && (
+            <div className="p-2 bg-amber-600 text-[10px] text-white text-center font-bold tracking-wide border-t border-white/10 select-none uppercase" id="quota-warning-message">
+              ⚠️ Modo offline: Limite diário de pesquisa do Google atingido
+            </div>
+          )}
 
           {/* Seta de Scroll Inferior */}
           <button

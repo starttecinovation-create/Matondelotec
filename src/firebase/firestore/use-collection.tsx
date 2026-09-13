@@ -53,9 +53,14 @@ export function useCollection<T = any>(
         setIsLoading(false);
       },
       (err: FirestoreError) => {
-        const path = memoizedTargetRefOrQuery.type === 'collection'
-            ? (memoizedTargetRefOrQuery as CollectionReference).path
-            : (memoizedTargetRefOrQuery as unknown as InternalQuery)._query.path.canonicalString();
+        let path = 'unknown_path';
+        try {
+          path = memoizedTargetRefOrQuery.type === 'collection'
+              ? (memoizedTargetRefOrQuery as CollectionReference).path
+              : (memoizedTargetRefOrQuery as any)?._query?.path?.canonicalString?.() || 'query';
+        } catch (e) {
+          console.error("Error extracting collection path:", e);
+        }
 
         const contextualError = new FirestorePermissionError({ operation: 'list', path });
         setError(contextualError);

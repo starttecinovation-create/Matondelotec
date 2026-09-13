@@ -468,6 +468,18 @@ export default function PartnerProfilePage() {
                             <AlertDescription>
                                 De momento, as operações com Redotpay (USDT), Unitel Money, Afrimoney, Multicaixa Express, BAI Paga, Airtm, depósito bancário, ou dinheiro vivo são processadas manualmente pela nossa equipa.
                                 <br /><br />
+                                Para sua conveniência, pode aceder ao Multicaixa Express através dos links abaixo:
+                                <div className="flex flex-wrap gap-2 my-3">
+                                    <a href="https://play.google.com/store/apps/details?id=ao.co.emis.mexpress" target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center rounded-md text-xs font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground px-3 py-1 h-8">
+                                        Google Play
+                                    </a>
+                                    <a href="https://apps.apple.com/ao/app/multicaixa-express/id1453457199" target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center rounded-md text-xs font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground px-3 py-1 h-8">
+                                        App Store
+                                    </a>
+                                    <a href="https://www.emis.co.ao/servicos/multicaixa/multicaixa-express/" target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center rounded-md text-xs font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground px-3 py-1 h-8">
+                                        Site Oficial
+                                    </a>
+                                </div>
                                 Para prosseguir, por favor, entre em contacto com o nosso suporte através do email <a href="mailto:pagamentos@matondelo.co.ao" className="font-semibold underline">pagamentos@matondelo.co.ao</a> com o assunto &quot;Carregamento de Saldo&quot; ou &quot;Levantamento de Fundos&quot; e receberá todas as instruções.
                             </AlertDescription>
                         </Alert>

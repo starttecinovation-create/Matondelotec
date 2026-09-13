@@ -24,7 +24,7 @@ export default function CheckoutPage() {
     const firestore = useFirestore();
     const { toast } = useToast();
     const router = useRouter();
-    const [paymentMethod, setPaymentMethod] = useState<'virtual_balance' | 'cash_on_delivery' | 'stripe'>('virtual_balance');
+    const [paymentMethod, setPaymentMethod] = useState<'virtual_balance' | 'cash_on_delivery' | 'stripe' | 'multicaixa_express'>('virtual_balance');
     const [isProcessing, setIsProcessing] = useState(false);
 
     const userProfileRef = useMemoFirebase(() => (user && firestore) ? doc(firestore, 'users', user.uid) : null, [firestore, user]);
@@ -110,7 +110,7 @@ export default function CheckoutPage() {
         batch.commit()
             .then(() => {
                 clearCart(); // Clear local state
-                toast({ title: 'Encomenda Realizada!', description: paymentMethod === 'virtual_balance' ? 'O seu pagamento foi processado com sucesso.' : 'A sua encomenda foi registada. Prepare o pagamento para a entrega.' });
+                toast({ title: 'Encomenda Realizada!', description: paymentMethod === 'virtual_balance' ? 'O seu pagamento foi processado com sucesso.' : paymentMethod === 'multicaixa_express' ? 'Encomenda registada. Por favor, envie o comprovativo do Multicaixa Express para o nosso suporte.' : 'A sua encomenda foi registada. Prepare o pagamento para a entrega.' });
                 router.push('/orders');
             })
             .catch((error) => {
@@ -315,6 +315,41 @@ export default function CheckoutPage() {
                                     </div>
                                 )}
                            </Label>
+                            <Label htmlFor="multicaixa_express" className="flex flex-col gap-4 p-4 border rounded-lg has-[:checked]:border-primary cursor-pointer">
+                                 <div className="flex items-center gap-4 w-full">
+                                     <RadioGroupItem value="multicaixa_express" id="multicaixa_express" />
+                                     <div className="flex-grow">
+                                         <div className="flex justify-between">
+                                             <p className="font-semibold">Multicaixa Express</p>
+                                             <div className="text-xs bg-primary/10 text-primary px-2.5 py-0.5 rounded-full font-bold">Angola</div>
+                                         </div>
+                                         <p className="text-xs text-muted-foreground mt-1">
+                                             Transfira ou pague o serviço usando o aplicativo Multicaixa Express e envie o comprovativo para o suporte.
+                                         </p>
+                                     </div>
+                                 </div>
+                                 {paymentMethod === 'multicaixa_express' && (
+                                     <div className="border-t pt-4 mt-2 w-full space-y-3" onClick={(e) => e.stopPropagation()}>
+                                         <p className="text-xs text-muted-foreground">
+                                             Aceda ou descarregue o aplicativo oficial do **Multicaixa Express** para efetuar o pagamento com total segurança:
+                                         </p>
+                                         <div className="flex flex-wrap gap-2">
+                                             <a href="https://play.google.com/store/apps/details?id=ao.co.emis.mexpress" target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center rounded-md text-xs font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground px-3 py-1.5 h-8">
+                                                 Google Play
+                                             </a>
+                                             <a href="https://apps.apple.com/ao/app/multicaixa-express/id1453457199" target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center rounded-md text-xs font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground px-3 py-1.5 h-8">
+                                                 App Store
+                                             </a>
+                                             <a href="https://www.emis.co.ao/servicos/multicaixa/multicaixa-express/" target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center rounded-md text-xs font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground px-3 py-1.5 h-8">
+                                                 Site Oficial
+                                             </a>
+                                         </div>
+                                         <p className="text-xs font-semibold text-amber-600">
+                                             Nota: Após realizar o pagamento, envie o comprovativo para pagamentos@matondelo.co.ao mencionando a sua conta.
+                                         </p>
+                                     </div>
+                                 )}
+                            </Label>
                        </RadioGroup>
                     </CardContent>
                     <CardFooter>

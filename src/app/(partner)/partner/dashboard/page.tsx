@@ -33,6 +33,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { usePartner } from '@/context/partner-context';
 import { useRouter } from 'next/navigation';
 import { subscriptionReminderFlow } from '@/ai/flows/payment-reminder-flow';
+import { getCategoryConfig } from '@/lib/category-helper';
 
 // Widget component to fetch and display area insights
 function AreaInsightCard() {
@@ -99,6 +100,10 @@ export default function PartnerDashboardPage() {
     const { userProfile, isProfileLoading, isAdmin } = usePartner();
     const { user } = useUser();
     const firestore = useFirestore();
+
+    const categoryConfig = useMemo(() => {
+        return getCategoryConfig(userProfile?.category);
+    }, [userProfile?.category]);
 
     const [monthlyBookings, setMonthlyBookings] = useState(0);
     const [isBookingsLoading, setIsBookingsLoading] = useState(true);
@@ -308,15 +313,15 @@ export default function PartnerDashboardPage() {
                             <span className="p-2.5 rounded-lg bg-indigo-50 text-indigo-600 w-fit mb-2 block group-hover:scale-105 transition-transform">
                                 <ShoppingBag className="w-5 h-5" />
                             </span>
-                            <CardTitle className="text-base font-bold text-slate-800">2. Serviços & Combos</CardTitle>
+                            <CardTitle className="text-base font-bold text-slate-800">2. {categoryConfig.servicePlural}</CardTitle>
                             <CardDescription className="text-xs leading-relaxed">
-                                Cadastre serviços, cortes, barbas, tratamentos capilares e combos personalizados, especificando o preço de venda e a duração exata.
+                                {categoryConfig.serviceDescription}
                             </CardDescription>
                         </CardHeader>
                         <CardContent className="pt-0 pb-4">
                             <Button asChild variant="ghost" size="sm" className="w-full justify-between hover:bg-slate-50 text-xs">
                                 <Link href="/partner/services">
-                                    Gerir Serviços <ArrowRight className="w-4 h-4 ml-1 text-slate-400 group-hover:translate-x-1 transition-transform" />
+                                    Gerir {categoryConfig.servicePlural} <ArrowRight className="w-4 h-4 ml-1 text-slate-400 group-hover:translate-x-1 transition-transform" />
                                 </Link>
                             </Button>
                         </CardContent>
@@ -328,15 +333,15 @@ export default function PartnerDashboardPage() {
                             <span className="p-2.5 rounded-lg bg-emerald-50 text-emerald-600 w-fit mb-2 block group-hover:scale-105 transition-transform">
                                 <User className="w-5 h-5" />
                             </span>
-                            <CardTitle className="text-base font-bold text-slate-800">3. Equipa & Turnos</CardTitle>
+                            <CardTitle className="text-base font-bold text-slate-800">3. {categoryConfig.professionalPlural}</CardTitle>
                             <CardDescription className="text-xs leading-relaxed">
-                                Faça a gestão de profissionais de barbearia, definindo especialidades de cada um, folgas semanais e turnos de atendimento específicos.
+                                {categoryConfig.professionalDescription}
                             </CardDescription>
                         </CardHeader>
                         <CardContent className="pt-0 pb-4">
                             <Button asChild variant="ghost" size="sm" className="w-full justify-between hover:bg-slate-50 text-xs">
                                 <Link href="/partner/professionals">
-                                    Gerir Profissionais <ArrowRight className="w-4 h-4 ml-1 text-slate-400 group-hover:translate-x-1 transition-transform" />
+                                    Gerir {categoryConfig.professionalPlural} <ArrowRight className="w-4 h-4 ml-1 text-slate-400 group-hover:translate-x-1 transition-transform" />
                                 </Link>
                             </Button>
                         </CardContent>

@@ -153,6 +153,56 @@ export function PartnerHeader() {
           </Sheet>
         </div>
       </div>
+      
+      {/* Menu horizontal deslizante para parceiros no mobile */}
+      <div className="md:hidden border-t bg-card/95 backdrop-blur-xs overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] py-2 px-4 flex items-center gap-3 border-b">
+        {finalNavLinks.map((link) => {
+          const Icon = link.icon;
+          const isActive = pathname === link.href || pathname.startsWith(link.href + '/');
+          return (
+            <Link
+              key={link.href}
+              href={link.href}
+              className={cn(
+                'flex items-center gap-1.5 text-xs font-semibold px-3.5 py-2 rounded-full transition-all whitespace-nowrap border',
+                isActive
+                  ? 'bg-primary text-primary-foreground border-primary shadow-xs'
+                  : 'text-muted-foreground hover:text-primary hover:bg-muted bg-muted/40 border-neutral-200'
+              )}
+            >
+              <Icon className="h-3.5 w-3.5" />
+              {link.label}
+            </Link>
+          );
+        })}
+      </div>
+
+      {/* Barra de Navegação Inferior Fixa para Parceiros no Mobile */}
+      <div className="fixed bottom-0 left-0 right-0 z-40 h-16 border-t bg-card/95 backdrop-blur-md pb-safe md:hidden flex justify-around items-center px-2 shadow-[0_-2px_10px_rgba(0,0,0,0.05)]">
+        {[
+          { href: '/partner/dashboard', label: 'Painel', icon: LayoutDashboard },
+          { href: '/partner/crm', label: 'CRM', icon: Handshake },
+          { href: '/partner/professionals', label: 'Equipa', icon: User },
+          { href: '/partner/services', label: 'Serviços', icon: ShoppingBag },
+          { href: '/partner/bookings', label: 'Reservas', icon: CalendarCheck },
+        ].map((link) => {
+          const Icon = link.icon;
+          const isActive = pathname === link.href || pathname.startsWith(link.href + '/');
+          return (
+            <Link
+              key={link.href}
+              href={link.href}
+              className={cn(
+                'flex flex-col items-center justify-center flex-1 h-full py-1 text-[10px] font-medium transition-colors gap-1',
+                isActive ? 'text-primary' : 'text-muted-foreground hover:text-primary'
+              )}
+            >
+              <Icon className={cn('h-5 w-5 transition-transform', isActive && 'scale-110 text-primary')} />
+              <span>{link.label}</span>
+            </Link>
+          );
+        })}
+      </div>
     </header>
   );
 }

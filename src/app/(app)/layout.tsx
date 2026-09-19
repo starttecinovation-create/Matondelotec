@@ -15,7 +15,7 @@ function FloatingChatButton() {
   return (
     <Button
       asChild
-      className="fixed bottom-6 right-6 h-16 w-16 rounded-full shadow-lg z-50"
+      className="fixed bottom-20 md:bottom-6 right-6 h-16 w-16 rounded-full shadow-lg z-50 animate-bounce"
       aria-label="Abrir assistente de chat"
     >
       <Link href="/assistant">
@@ -126,7 +126,7 @@ export default function AppLayout({
       <AnnouncementBar />
       <AppHeader />
       
-      <main className="flex-1 bg-muted/20 relative">
+      <main className="flex-1 bg-muted/20 relative pb-16 md:pb-0">
         {/* CRÍTICO: Children renderizado obrigatoriamente para que o Next.js encontre as rotas */}
         {children}
       </main>

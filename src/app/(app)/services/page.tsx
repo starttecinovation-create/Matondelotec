@@ -4,11 +4,12 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { Search, MapPin } from 'lucide-react';
 import { ServiceCard } from '@/components/service-card';
 import { Input } from '@/components/ui/input';
-import { type Service, type ServiceCategory, type TouristSpot } from '@/lib/types';
+import { type Service, type ServiceCategory, type TouristSpot, type PlaceResult } from '@/lib/types';
+import { PlaceSearchInput } from '@/components/place-search-input';
 import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
 import { collectionGroup, query, limit } from 'firebase/firestore';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -76,6 +77,7 @@ function FeaturedServices() {
 
 function ServicesPageContent() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const initialCategory = searchParams.get('category') as ServiceCategory | null;
   const [searchTerm, setSearchTerm] = useState('');
   
@@ -97,6 +99,31 @@ function ServicesPageContent() {
   
   const isTourismCategory = initialCategory === 'Agências de Turismo e Viagens';
 
+  const handlePlaceSelect = (place: PlaceResult | null) => {
+    if (!place) return;
+
+    let lat: number | undefined;
+    let lng: number | undefined;
+    if (place.geometry?.location) {
+      const loc = place.geometry.location;
+      if (typeof loc.lat === 'function' && typeof loc.lng === 'function') {
+        lat = loc.lat();
+        lng = loc.lng();
+      } else if (typeof (loc as any).lat === 'number' && typeof (loc as any).lng === 'number') {
+        lat = (loc as any).lat;
+        lng = (loc as any).lng;
+      }
+    }
+
+    if (lat !== undefined && lng !== undefined) {
+      router.push(`/map?placeId=${place.place_id || 'custom'}&placeName=${encodeURIComponent(place.name)}&lat=${lat}&lng=${lng}`);
+    } else if (place.place_id) {
+      router.push(`/map?placeId=${place.place_id}`);
+    } else if (place.name) {
+      router.push(`/map?query=${encodeURIComponent(place.name)}`);
+    }
+  };
+
   return (
     <div className="container mx-auto px-4 py-8 md:py-12">
       <div className="space-y-8 max-w-4xl mx-auto">
@@ -109,14 +136,12 @@ function ServicesPageContent() {
           </p>
         </div>
         
-        <div className="relative max-w-2xl mx-auto w-full">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-[#FF7A00]" />
-          <Input
-            type="search"
-            placeholder="Procurar por nome do serviço..."
-            className="pl-12 pr-4 py-6 w-full text-base border-2 border-[#FF7A00]/50 hover:border-[#FF7A00] focus-visible:border-[#FF7A00] focus-visible:ring-2 focus-visible:ring-[#FF7A00]/20 rounded-xl transition-all shadow-sm bg-white text-slate-800 placeholder:text-slate-400"
+        <div className="relative max-w-2xl mx-auto w-full flex justify-center">
+          <PlaceSearchInput
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={setSearchTerm}
+            placeholder="Procurar por nome do serviço ou local..."
+            onPlaceSelect={handlePlaceSelect}
           />
         </div>
 

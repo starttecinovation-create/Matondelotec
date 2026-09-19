@@ -252,7 +252,7 @@ const INSTITUTIONS_DB: Record<string, string[]> = {
   ]
 };
 
-const LOCAL_COORDINATES: Record<string, { lat: number; lng: number }> = {
+export const LOCAL_COORDINATES: Record<string, { lat: number; lng: number }> = {
   // Letra A
   "Aeroporto Internacional Luanda Quatro de Fevereiro": { lat: -8.8583, lng: 13.2311 },
   "Assembleia Nacional de Angola": { lat: -8.8164, lng: 13.2381 },
@@ -343,8 +343,30 @@ const LOCAL_COORDINATES: Record<string, { lat: number; lng: number }> = {
   "Zango, Luanda": { lat: -8.9953, lng: 13.4097 }
 };
 
-export function PlaceSearchInput({ onPlaceSelect }: { onPlaceSelect: (place: PlaceResult | null) => void }) {
-  const [value, setValue] = useState('');
+export interface PlaceSearchInputProps {
+  onPlaceSelect: (place: PlaceResult | null) => void;
+  value?: string;
+  onChange?: (val: string) => void;
+  placeholder?: string;
+}
+
+export function PlaceSearchInput({
+  onPlaceSelect,
+  value: controlledValue,
+  onChange: controlledOnChange,
+  placeholder,
+}: PlaceSearchInputProps) {
+  const [localValue, setLocalValue] = useState('');
+  const isControlled = controlledValue !== undefined && controlledOnChange !== undefined;
+  const value = isControlled ? controlledValue! : localValue;
+
+  const setValue = (val: string) => {
+    if (isControlled) {
+      controlledOnChange!(val);
+    } else {
+      setLocalValue(val);
+    }
+  };
   const debouncedValue = useDebounce(value, 300);
   const [activeLetter, setActiveLetter] = useState('A');
   const [googleSuggestions, setGoogleSuggestions] = useState<google.maps.places.AutocompleteSuggestion[]>([]);
@@ -781,7 +803,7 @@ export function PlaceSearchInput({ onPlaceSelect }: { onPlaceSelect: (place: Pla
         <Search className="h-5 w-5 text-neutral-400 mr-3 shrink-0" />
         <input
           type="text"
-          placeholder="Pesquise por qualquer local, serviço ou táxi..."
+          placeholder={placeholder || "Pesquise por qualquer local, serviço ou táxi..."}
           className="flex-1 bg-transparent border-none outline-none text-sm text-neutral-800 placeholder-neutral-400 font-sans w-full py-2.5"
           value={value}
           onChange={(e) => {

@@ -17,7 +17,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { CategoryIcon } from '@/components/category-icon';
-import { PlaceSearchInput } from '@/components/place-search-input';
+import { PlaceSearchInput, LOCAL_COORDINATES } from '@/components/place-search-input';
 import { useSearchParams } from 'next/navigation';
 
 const filterCategories: ServiceCategory[] = ['Hotel', 'Restaurante', 'Salão de Beleza', 'Barbearia'];
@@ -134,7 +134,98 @@ function MapPageContent() {
     if (!places || !map) return;
 
     const placeId = searchParams.get('placeId');
-    if (placeId) {
+    const queryVal = searchParams.get('query');
+    const latParam = searchParams.get('lat');
+    const lngParam = searchParams.get('lng');
+    const placeNameParam = searchParams.get('placeName');
+
+    // 1. If explicit coordinates are passed via query parameters
+    if (latParam && lngParam) {
+      const latVal = parseFloat(latParam);
+      const lngVal = parseFloat(lngParam);
+      const name = placeNameParam || queryVal || 'Local';
+      const placeResult: PlaceResult = {
+        place_id: placeId || 'custom_param',
+        name,
+        formatted_address: 'Luanda, Angola',
+        geometry: {
+          location: {
+            lat: () => latVal,
+            lng: () => lngVal,
+            toJSON: () => ({ lat: latVal, lng: lngVal }),
+          } as unknown as google.maps.LatLng,
+          viewport: null,
+        }
+      };
+      handlePlaceSelect(placeResult);
+      return;
+    }
+
+    // 2. If it is a local suggestion with static coordinates
+    if (placeId && placeId.startsWith('local_')) {
+      const decodedName = placeId.substring(6).replace(/_/g, ' ');
+      const localCoords = LOCAL_COORDINATES[decodedName];
+      if (localCoords) {
+        const placeResult: PlaceResult = {
+          place_id: placeId,
+          name: decodedName,
+          formatted_address: 'Luanda, Angola',
+          geometry: {
+            location: {
+              lat: () => localCoords.lat,
+              lng: () => localCoords.lng,
+              toJSON: () => localCoords,
+            } as unknown as google.maps.LatLng,
+            viewport: null,
+          }
+        };
+        handlePlaceSelect(placeResult);
+        return;
+      }
+    }
+
+    // 3. If a free text search query is passed
+    if (queryVal) {
+      const matchedName = Object.keys(LOCAL_COORDINATES).find(
+        name => name.toLowerCase().includes(queryVal.toLowerCase())
+      );
+      if (matchedName) {
+        const coords = LOCAL_COORDINATES[matchedName];
+        const placeResult: PlaceResult = {
+          place_id: 'local_' + matchedName.replace(/\s+/g, '_'),
+          name: matchedName,
+          formatted_address: 'Luanda, Angola',
+          geometry: {
+            location: {
+              lat: () => coords.lat,
+              lng: () => coords.lng,
+              toJSON: () => coords,
+            } as unknown as google.maps.LatLng,
+            viewport: null,
+          }
+        };
+        handlePlaceSelect(placeResult);
+      } else {
+        const placeResult: PlaceResult = {
+          place_id: 'query_' + encodeURIComponent(queryVal),
+          name: queryVal,
+          formatted_address: 'Luanda, Angola',
+          geometry: {
+            location: {
+              lat: () => -8.8368,
+              lng: () => 13.2343,
+              toJSON: () => ({ lat: -8.8368, lng: 13.2343 }),
+            } as unknown as google.maps.LatLng,
+            viewport: null,
+          }
+        };
+        handlePlaceSelect(placeResult);
+      }
+      return;
+    }
+
+    // 4. Default: Standard Google Place ID resolving
+    if (placeId && !placeId.startsWith('local_') && !placeId.startsWith('custom_') && !placeId.startsWith('direct_')) {
       const place = new places.Place({ id: placeId });
       place.fetchFields({
         fields: ['displayName', 'formattedAddress', 'location', 'viewport', 'types']

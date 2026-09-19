@@ -160,8 +160,27 @@ export default function DashboardPage() {
     const { data: recentBookings, isLoading: areBookingsLoading } = useCollection<Booking>(bookingsQuery);
 
     const handlePlaceSelect = (place: PlaceResult | null) => {
-        if (place?.place_id) {
-            router.push(`/map?placeId=${place.place_id}`);
+        if (!place) return;
+
+        let lat: number | undefined;
+        let lng: number | undefined;
+        if (place.geometry?.location) {
+          const loc = place.geometry.location;
+          if (typeof loc.lat === 'function' && typeof loc.lng === 'function') {
+            lat = loc.lat();
+            lng = loc.lng();
+          } else if (typeof (loc as any).lat === 'number' && typeof (loc as any).lng === 'number') {
+            lat = (loc as any).lat;
+            lng = (loc as any).lng;
+          }
+        }
+
+        if (lat !== undefined && lng !== undefined) {
+          router.push(`/map?placeId=${place.place_id || 'custom'}&placeName=${encodeURIComponent(place.name)}&lat=${lat}&lng=${lng}`);
+        } else if (place.place_id) {
+          router.push(`/map?placeId=${place.place_id}`);
+        } else if (place.name) {
+          router.push(`/map?query=${encodeURIComponent(place.name)}`);
         }
     }
 

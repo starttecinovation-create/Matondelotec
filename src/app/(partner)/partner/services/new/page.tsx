@@ -1,7 +1,7 @@
 'use client';
 
 import { useFirestore, useUser, errorEmitter, FirestorePermissionError, useDoc, useMemoFirebase } from '@/firebase';
-import { collection, doc, writeBatch, getDoc } from 'firebase/firestore';
+import { collection, doc, writeBatch } from 'firebase/firestore';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
@@ -16,9 +16,10 @@ import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { type Service } from '@/lib/types';
 import { generateServiceDescription } from '@/ai/flows/service-description-flow';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Separator } from '@/components/ui/separator';
 import { Label } from '@/components/ui/label';
+import { getCategoryConfig } from '@/lib/category-helper';
 
 const serviceFormSchema = z.object({
     name: z.string().min(3, "O nome deve ter pelo menos 3 caracteres."),
@@ -37,6 +38,10 @@ export default function PartnerServiceNewPage() {
 
     const userProfileRef = useMemoFirebase(() => user ? firestore && user ? doc(firestore, 'users', user.uid) : null : null, [firestore, user]);
     const { data: userProfile, isLoading: isProfileLoading } = useDoc(userProfileRef);
+
+    const categoryConfig = useMemo(() => {
+        return getCategoryConfig(userProfile?.category);
+    }, [userProfile?.category]);
 
     const form = useForm<z.infer<typeof serviceFormSchema>>({
         resolver: zodResolver(serviceFormSchema),
@@ -92,7 +97,7 @@ export default function PartnerServiceNewPage() {
 
         if (!userCategory) {
             toast({
-                title: "Erro ao criar serviço",
+                title: "Erro ao registar",
                 description: "A categoria do seu negócio não está definida no seu perfil.",
                 variant: "destructive"
             });
@@ -113,14 +118,14 @@ export default function PartnerServiceNewPage() {
         batch.commit()
             .then(() => {
                 toast({
-                    title: "Serviço Criado!",
-                    description: `O serviço "${values.name}" foi adicionado com sucesso.`
+                    title: `${categoryConfig.serviceSingular} Registado(a)!`,
+                    description: `O(A) ${categoryConfig.serviceSingular.toLowerCase()} "${values.name}" foi adicionado(a) com sucesso.`
                 });
                 router.push('/partner/services');
             })
             .catch((e) => {
                  toast({
-                    title: "Erro ao criar serviço",
+                    title: "Erro ao registar",
                     description: "Não foi possível guardar as alterações. Tente novamente.",
                     variant: "destructive"
                 });
@@ -137,11 +142,11 @@ export default function PartnerServiceNewPage() {
             <div className="max-w-2xl mx-auto">
                  <div className="mb-8">
                     <Button variant="ghost" asChild className="mb-4">
-                        <Link href="/partner/services"><ArrowLeft className="mr-2"/>Voltar aos Serviços</Link>
+                        <Link href="/partner/services"><ArrowLeft className="mr-2"/>Voltar a {categoryConfig.servicePlural}</Link>
                     </Button>
-                    <h1 className="font-headline text-3xl md:text-4xl font-bold">Adicionar Novo Serviço</h1>
+                    <h1 className="font-headline text-3xl md:text-4xl font-bold">Adicionar Novo(a) {categoryConfig.serviceSingular}</h1>
                     <p className="text-muted-foreground mt-2">
-                        Preencha os detalhes abaixo para adicionar um novo serviço ao seu perfil.
+                        Preencha os detalhes abaixo para adicionar um(a) novo(a) {categoryConfig.serviceSingular.toLowerCase()} ao seu perfil.
                     </p>
                 </div>
                 
@@ -154,11 +159,11 @@ export default function PartnerServiceNewPage() {
                              </CardHeader>
                              <CardContent className="space-y-4">
                                 <div className="space-y-2">
-                                    <Label htmlFor="ai-prompt">Ideia para o serviço</Label>
+                                    <Label htmlFor="ai-prompt">Ideia para o(a) {categoryConfig.serviceSingular.toLowerCase()}</Label>
                                     <div className="flex gap-2">
                                         <Input 
                                             id="ai-prompt"
-                                            placeholder="Ex: Quarto duplo com ar condicionado e pequeno-almoço" 
+                                            placeholder={categoryConfig.aiPromptPlaceholder} 
                                             value={aiPrompt}
                                             onChange={(e) => setAiPrompt(e.target.value)}
                                             disabled={isGenerating || isProfileLoading}
@@ -177,9 +182,9 @@ export default function PartnerServiceNewPage() {
                                     name="name"
                                     render={({ field }) => (
                                         <FormItem>
-                                        <FormLabel>Nome do Serviço</FormLabel>
+                                        <FormLabel>Nome do(a) {categoryConfig.serviceSingular}</FormLabel>
                                         <FormControl>
-                                            <Input placeholder="Ex: Quarto Duplo com Vista Mar" {...field} />
+                                            <Input placeholder={`Ex: ${categoryConfig.serviceSingular}`} {...field} />
                                         </FormControl>
                                         <FormMessage />
                                         </FormItem>
@@ -190,9 +195,9 @@ export default function PartnerServiceNewPage() {
                                     name="description"
                                     render={({ field }) => (
                                         <FormItem>
-                                        <FormLabel>Descrição do Serviço</FormLabel>
+                                        <FormLabel>Descrição do(a) {categoryConfig.serviceSingular}</FormLabel>
                                         <FormControl>
-                                            <Textarea rows={5} placeholder="Descreva detalhadamente o seu serviço, o que inclui, etc." {...field} />
+                                            <Textarea rows={5} placeholder={`Descreva detalhadamente o(a) seu(sua) ${categoryConfig.serviceSingular.toLowerCase()}, o que inclui, etc.`} {...field} />
                                         </FormControl>
                                         <FormMessage />
                                         </FormItem>
@@ -203,7 +208,7 @@ export default function PartnerServiceNewPage() {
                                     name="price"
                                     render={({ field }) => (
                                         <FormItem>
-                                        <FormLabel>Preço Base (em AOA)</FormLabel>
+                                        <FormLabel>{categoryConfig.priceLabel}</FormLabel>
                                         <FormControl>
                                             <Input type="number" {...field} />
                                         </FormControl>
@@ -216,7 +221,7 @@ export default function PartnerServiceNewPage() {
                                     name="duration"
                                     render={({ field }) => (
                                         <FormItem>
-                                        <FormLabel>Duração do Serviço (em minutos)</FormLabel>
+                                        <FormLabel>{categoryConfig.durationLabel}</FormLabel>
                                         <FormControl>
                                             <Input type="number" {...field} />
                                         </FormControl>
@@ -227,7 +232,7 @@ export default function PartnerServiceNewPage() {
                             </CardContent>
                             <CardFooter>
                                 <Button type="submit" disabled={form.formState.isSubmitting || isUserLoading}>
-                                    {form.formState.isSubmitting ? <Loader2 className="animate-spin" /> : "Adicionar Serviço"}
+                                    {form.formState.isSubmitting ? <Loader2 className="animate-spin" /> : `Adicionar ${categoryConfig.serviceSingular}`}
                                 </Button>
                             </CardFooter>
                         </Card>

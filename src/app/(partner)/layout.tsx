@@ -57,7 +57,7 @@ function PartnerLayoutContent({ children }: { children: React.ReactNode }) {
     <PartnerProvider>
       <div className="flex min-h-screen flex-col">
         <PartnerHeader />
-        <main className="flex-1 bg-muted/20">{children}</main>
+        <main className="flex-1 bg-muted/20 pb-16 md:pb-0">{children}</main>
         <AppFooter />
       </div>
     </PartnerProvider>

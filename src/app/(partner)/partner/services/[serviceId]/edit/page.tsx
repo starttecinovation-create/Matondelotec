@@ -16,10 +16,11 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState, use } from 'react';
+import { useEffect, useState, useMemo, use } from 'react';
 import { generateServiceDescription } from '@/ai/flows/service-description-flow';
 import { Separator } from '@/components/ui/separator';
 import { Label } from '@/components/ui/label';
+import { getCategoryConfig } from '@/lib/category-helper';
 
 const serviceFormSchema = z.object({
     name: z.string().min(3, "O nome deve ter pelo menos 3 caracteres."),
@@ -43,6 +44,10 @@ export default function PartnerServiceEditPage({ params }: { params: Promise<{ s
     }, [firestore, user, unwrappedParams.serviceId]);
 
     const { data: service, isLoading: isServiceLoading } = useDoc<Service>(serviceRef);
+
+    const categoryConfig = useMemo(() => {
+        return getCategoryConfig(service?.category);
+    }, [service?.category]);
 
     const form = useForm<z.infer<typeof serviceFormSchema>>({
         resolver: zodResolver(serviceFormSchema),
@@ -106,7 +111,7 @@ export default function PartnerServiceEditPage({ params }: { params: Promise<{ s
         updateDoc(serviceRef, values)
             .then(() => {
                 toast({
-                    title: "Serviço Atualizado!",
+                    title: `${categoryConfig.serviceSingular} Atualizado(a)!`,
                     description: `As informações de "${values.name}" foram guardadas com sucesso.`
                 });
                 router.push('/partner/services');
@@ -130,7 +135,7 @@ export default function PartnerServiceEditPage({ params }: { params: Promise<{ s
             <div className="max-w-2xl mx-auto">
                  <div className="mb-8">
                     <Button variant="ghost" asChild className="mb-4">
-                        <Link href="/partner/services"><ArrowLeft className="mr-2"/>Voltar aos Serviços</Link>
+                        <Link href="/partner/services"><ArrowLeft className="mr-2"/>Voltar a {categoryConfig.servicePlural}</Link>
                     </Button>
                     {isServiceLoading ? (
                         <>
@@ -139,7 +144,7 @@ export default function PartnerServiceEditPage({ params }: { params: Promise<{ s
                         </>
                     ) : (
                         <>
-                            <h1 className="font-headline text-3xl md:text-4xl font-bold">Editar Serviço</h1>
+                            <h1 className="font-headline text-3xl md:text-4xl font-bold">Editar {categoryConfig.serviceSingular}</h1>
                             <p className="text-muted-foreground mt-2">
                                 Modifique as informações de &quot;{service?.name}&quot;.
                             </p>
@@ -156,11 +161,11 @@ export default function PartnerServiceEditPage({ params }: { params: Promise<{ s
                              </CardHeader>
                              <CardContent className="space-y-4">
                                 <div className="space-y-2">
-                                    <Label htmlFor="ai-prompt">Ideia para o serviço</Label>
+                                    <Label htmlFor="ai-prompt">Ideia para o(a) {categoryConfig.serviceSingular.toLowerCase()}</Label>
                                     <div className="flex gap-2">
                                         <Input 
                                             id="ai-prompt"
-                                            placeholder="Ex: Corte de cabelo masculino com barba" 
+                                            placeholder={categoryConfig.aiPromptPlaceholder} 
                                             value={aiPrompt}
                                             onChange={(e) => setAiPrompt(e.target.value)}
                                             disabled={isGenerating || isServiceLoading}
@@ -187,9 +192,9 @@ export default function PartnerServiceEditPage({ params }: { params: Promise<{ s
                                         name="name"
                                         render={({ field }) => (
                                             <FormItem>
-                                            <FormLabel>Nome do Serviço</FormLabel>
+                                            <FormLabel>Nome do(a) {categoryConfig.serviceSingular}</FormLabel>
                                             <FormControl>
-                                                <Input placeholder="Ex: Hotel Baía" {...field} />
+                                                <Input placeholder={`Ex: ${categoryConfig.serviceSingular}`} {...field} />
                                             </FormControl>
                                             <FormMessage />
                                             </FormItem>
@@ -200,9 +205,9 @@ export default function PartnerServiceEditPage({ params }: { params: Promise<{ s
                                         name="description"
                                         render={({ field }) => (
                                             <FormItem>
-                                            <FormLabel>Descrição do Serviço</FormLabel>
+                                            <FormLabel>Descrição do(a) {categoryConfig.serviceSingular}</FormLabel>
                                             <FormControl>
-                                                <Textarea rows={5} placeholder="Descreva detalhadamente o seu serviço..." {...field} />
+                                                <Textarea rows={5} placeholder={`Descreva detalhadamente o(a) seu(sua) ${categoryConfig.serviceSingular.toLowerCase()}...`} {...field} />
                                             </FormControl>
                                             <FormMessage />
                                             </FormItem>
@@ -213,7 +218,7 @@ export default function PartnerServiceEditPage({ params }: { params: Promise<{ s
                                         name="price"
                                         render={({ field }) => (
                                             <FormItem>
-                                            <FormLabel>Preço Base (em AOA)</FormLabel>
+                                            <FormLabel>{categoryConfig.priceLabel}</FormLabel>
                                             <FormControl>
                                                 <Input type="number" {...field} />
                                             </FormControl>
@@ -226,7 +231,7 @@ export default function PartnerServiceEditPage({ params }: { params: Promise<{ s
                                         name="duration"
                                         render={({ field }) => (
                                             <FormItem>
-                                            <FormLabel>Duração do Serviço (em minutos)</FormLabel>
+                                            <FormLabel>{categoryConfig.durationLabel}</FormLabel>
                                             <FormControl>
                                                 <Input type="number" {...field} />
                                             </FormControl>
@@ -236,16 +241,16 @@ export default function PartnerServiceEditPage({ params }: { params: Promise<{ s
                                     />
                                  </>
                                  )}
-                            </CardContent>
-                            <CardFooter>
-                                <Button type="submit" disabled={form.formState.isSubmitting || isServiceLoading}>
-                                    {form.formState.isSubmitting ? <Loader2 className="animate-spin" /> : "Guardar Alterações"}
-                                </Button>
-                            </CardFooter>
-                        </Card>
-                    </form>
-                </Form>
-            </div>
-        </div>
-    );
+                             </CardContent>
+                             <CardFooter>
+                                 <Button type="submit" disabled={form.formState.isSubmitting || isServiceLoading}>
+                                     {form.formState.isSubmitting ? <Loader2 className="animate-spin" /> : "Guardar Alterações"}
+                                 </Button>
+                             </CardFooter>
+                         </Card>
+                     </form>
+                 </Form>
+             </div>
+         </div>
+     );
 }

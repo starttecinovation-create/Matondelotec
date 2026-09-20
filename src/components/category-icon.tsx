@@ -1,4 +1,4 @@
-import { Building2, Home, Utensils, Stethoscope, Scissors, Paintbrush, Printer, FerrisWheel, type LucideProps, Combine, Layers, ShoppingCart, Hospital, Landmark, Wrench, Fuel, School, GraduationCap, HeartHandshake, Scale, Store, DollarSign, Shield, Brush, Globe, Phone, Wifi, Briefcase, Cake, BrainCircuit } from 'lucide-react';
+import { Building2, Home, Utensils, Stethoscope, Scissors, Paintbrush, Printer, FerrisWheel, type LucideProps, Combine, Layers, ShoppingCart, Hospital, Landmark, Wrench, Fuel, School, GraduationCap, HeartHandshake, Scale, Store, DollarSign, Shield, Brush, Globe, Phone, Wifi, Briefcase, Cake, BrainCircuit, Wallet } from 'lucide-react';
 import type { ServiceCategory } from '@/lib/types';
 
 export const categoryDetails: Record<ServiceCategory, { icon: React.ElementType<LucideProps>; label: string }> = {
@@ -37,6 +37,7 @@ export const categoryDetails: Record<ServiceCategory, { icon: React.ElementType<
   'Multinacionais': { icon: Globe, label: 'Multinacionais'},
   'Operadoras de Redes Telefónicas': { icon: Phone, label: 'Operadoras'},
   'Provedores de Internet': { icon: Wifi, label: 'Internet'},
+  'Carteira digital': { icon: Wallet, label: 'Carteira Digital' },
   'Outros': { icon: Briefcase, label: 'Outros'},
 };
 

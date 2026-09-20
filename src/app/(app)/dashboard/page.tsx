@@ -225,7 +225,7 @@ export default function DashboardPage() {
                   const details = categoryDetails[category];
                   if (!details) return null;
                   return (
-                    <Link href={`/services?category=${encodeURIComponent(category)}`} key={category}>
+                    <Link href={category === 'Carteira digital' ? '/carteira-digital' : `/services?category=${encodeURIComponent(category)}`} key={category}>
                         <Card className="flex flex-col items-center justify-center p-4 h-full text-center hover:bg-accent hover:text-accent-foreground transition-colors group">
                             <CategoryIcon category={category} className="h-8 w-8" />
                             <p className="mt-2 text-sm font-semibold">{details.label}</p>

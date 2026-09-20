@@ -195,7 +195,7 @@ export default function PartnerDashboardPage() {
                 <div className="px-6 py-10 md:px-10 md:py-12 flex flex-col md:flex-row md:items-center justify-between gap-6">
                     <div className="space-y-2">
                         <span className="bg-amber-400 text-slate-950 text-[10px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider">
-                            Painel Corporativo
+                            Painel do Empreendedor
                         </span>
                         <h1 className="font-headline text-3xl md:text-4xl font-black tracking-tight">
                             {userProfile?.companyName || 'Minha Empresa'}

@@ -49,6 +49,7 @@ export type ServiceCategory =
   | 'Provedores de Internet'
   | 'Salão de Festas'
   | 'Loja'
+  | 'Carteira digital'
   | 'Outros';
 
 export type UserRole = 'user' | 'vendor' | 'driver' | 'admin';
@@ -305,6 +306,7 @@ export const serviceCategories: ServiceCategory[] = [
     'Multinacionais',
     'Operadoras de Redes Telefónicas',
     'Provedores de Internet',
+    'Carteira digital',
     'Outros',
 ];
 

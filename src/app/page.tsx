@@ -49,7 +49,7 @@ export default function LandingPage() {
 
        <div className="mt-12 w-full max-w-xs sm:max-w-md animate-in slide-in-from-bottom-6 duration-1000">
          <div className="bg-[#0F3460] text-white p-6 rounded-2xl border border-white/10 shadow-xl flex flex-col items-center text-center gap-4">
-           <h3 className="text-xl font-bold font-sans tracking-wide">PAINEL CORPORATIVO</h3>
+           <h3 className="text-xl font-bold font-sans tracking-wide">PAINEL DO EMPREENDEDOR</h3>
            <p className="text-sm text-white/80 leading-relaxed font-medium">
              Cadastre a sua organização, sua marca ou Instituição e fique mais próximo do seu público alvo.
            </p>
